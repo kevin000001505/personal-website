@@ -411,6 +411,7 @@
     box-shadow: 0 8px 28px rgba(122,79,45,0.12);
   }
   .project-card:hover::before { opacity: 1; }
+  a.project-card { text-decoration: none; color: inherit; cursor: pointer; }
   .project-icon { font-size: 1.5rem; margin-bottom: 1rem; }
   .project-name { font-size: 1.1rem; font-weight: 700; color: var(--text-bright); margin-bottom: 0.5rem; }
   .project-desc { font-size: 0.88rem; color: var(--text-dim); flex: 1; margin-bottom: 1.25rem; line-height: 1.6; }
@@ -780,46 +781,46 @@
     <h2 class="section-title">What I've Built</h2>
   </div>
   <div class="projects-grid">
-    <div class="project-card reveal">
+    <a class="project-card reveal" href="https://github.com/kevin000001505/Capstone.git" target="_blank" rel="noopener">
       <div class="project-icon">🛰️</div>
       <div class="project-name">Space Weather Dashboard</div>
       <div class="project-desc">Production data platform processing 150GB/month of space weather telemetry. 70% storage reduction via PostgreSQL partitioning. 50% faster API responses with Redis. Real-time SSE delivery, Prefect orchestration, full CI/CD pipeline with zero production crashes.</div>
       <div class="project-tags">
         <span class="tag">PostgreSQL</span><span class="tag">PostGIS</span><span class="tag blue">FastAPI</span><span class="tag blue">Redis</span><span class="tag purple">Prefect</span><span class="tag orange">Docker</span><span class="tag">GitHub Actions</span>
       </div>
-    </div>
-    <div class="project-card reveal">
+    </a>
+    <a class="project-card reveal" href="https://github.com/kevin000001505/meta-rag.git" target="_blank" rel="noopener">
       <div class="project-icon">🧠</div>
       <div class="project-name">Multimodal RAG Optimization</div>
       <div class="project-desc">10% performance improvement over Llama 3.2 baseline with LoRA fine-tuning on 4-bit quantized model. Integrated Florence-2 image captioning for 5% boost in multimodal accuracy. Low-level PyTorch benchmarking of ELIP frameworks.</div>
       <div class="project-tags">
         <span class="tag purple">PyTorch</span><span class="tag purple">LoRA</span><span class="tag blue">Florence-2</span><span class="tag">RAG</span>
       </div>
-    </div>
-    <div class="project-card reveal">
+    </a>
+    <a class="project-card reveal" href="https://github.com/kevin000001505/Hackathon-Tinder-Restaurant.git" target="_blank" rel="noopener">
       <div class="project-icon">🏆</div>
       <div class="project-name">Restaurant Recommender — 3rd Place</div>
       <div class="project-desc">GDG GMU Hackathon winner. Solved cold-start problem using K-Prototypes clustering combined with review embeddings for personalized ranking, with multi-threaded inference.</div>
       <div class="project-tags">
         <span class="tag purple">K-Prototypes</span><span class="tag">Embeddings</span><span class="tag blue">Multi-threading</span>
       </div>
-    </div>
-    <div class="project-card reveal">
+    </a>
+    <a class="project-card reveal" href="https://github.com/kevin000001505/GMU-chatbot.git" target="_blank" rel="noopener">
       <div class="project-icon">💬</div>
       <div class="project-name">George Mason AI Chatbot</div>
       <div class="project-desc">Conversational AI with 40% latency reduction. Built with LangGraph + DSPY optimization, powered by C-RAG/Crawl4AI pipeline. Containerized with Docker, deployed on AWS EC2 via Terraform.</div>
       <div class="project-tags">
         <span class="tag purple">LangGraph</span><span class="tag purple">DSPY</span><span class="tag orange">AWS EC2</span><span class="tag orange">Terraform</span>
       </div>
-    </div>
-    <div class="project-card reveal">
+    </a>
+    <a class="project-card reveal" href="https://github.com/kevinhsu/semantic-analysis-model" target="_blank" rel="noopener">
       <div class="project-icon">📊</div>
       <div class="project-name">Semantic Analysis Model</div>
       <div class="project-desc">90% classification accuracy with two-stage hybrid model combining TF-IDF Random Forest for speed with fine-tuned BERT for complex analysis. Training under 2 hours.</div>
       <div class="project-tags">
         <span class="tag purple">BERT</span><span class="tag">TF-IDF</span><span class="tag blue">scikit-learn</span>
       </div>
-    </div>
+    </a>
   </div>
 </section>
 
