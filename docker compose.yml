@@ -1,0 +1,15 @@
+services:
+  website:
+    build: .
+    container_name: kevin-website
+    restart: unless-stopped
+    ports:
+      - "3080:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    # Uncomment below if you want to live-edit without rebuilding:
+    # volumes:
+    #   - ./index.html:/usr/share/nginx/html/index.html:ro
