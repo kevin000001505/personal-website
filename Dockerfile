@@ -9,6 +9,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy website
 COPY index.html /usr/share/nginx/html/index.html
+COPY kevin.png /usr/share/nginx/html/kevin.png
 
 # Non-root user (nginx-alpine supports this)
 RUN chown -R nginx:nginx /usr/share/nginx/html \
