@@ -35,8 +35,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build and restart services
+        env:
+            DOCKER_BUILDKIT: 1
         run: |
-          docker compose down --remove-orphans
+          docker compose down
           docker compose build --no-cache
           docker compose up -d
           docker compose ps

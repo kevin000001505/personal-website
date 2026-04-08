@@ -15,6 +15,8 @@ COPY kevin.png /usr/share/nginx/html/kevin.png
 RUN chown -R nginx:nginx /usr/share/nginx/html \
     && chmod -R 755 /usr/share/nginx/html
 
+    ENV PYTHONDONTWRITEBYTECODE=1
+
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
