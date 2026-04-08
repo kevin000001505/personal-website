@@ -37,7 +37,6 @@ jobs:
       - name: Build and restart services
         env:
             DOCKER_BUILDKIT: 1
-            COMPOSE_FILE: "docker compose.yml"
         run: |
           docker compose down
           docker compose build --no-cache
