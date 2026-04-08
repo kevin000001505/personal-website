@@ -13,3 +13,17 @@ services:
     # Uncomment below if you want to live-edit without rebuilding:
     # volumes:
     #   - ./index.html:/usr/share/nginx/html/index.html:ro
+  
+  fastapi:
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    container_name: fastapi
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
