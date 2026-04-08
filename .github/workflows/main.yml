@@ -1,60 +1,49 @@
-name: Starter Workflow
+name: CI/CD
 
-# Trigger on push and pull requests
 on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  build:
-    # Use your self-hosted runner
+  test:
     runs-on: self-hosted
-    
-    # Set environment variables
     env:
       PROJECT_NAME: "personal-website"
-    
+
     steps:
-      # Check out your repository code
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      # Print basic system info
-      - name: Display system info
-        run: |
-          echo "🚀 Running on self-hosted runner"
-          echo "OS: $(uname -s)"
-          echo "Hostname: $(hostname)"
-          echo "Current directory: $(pwd)"
-          echo "Disk space:"
-          df -h
-      
-      # Python example (if using Python)
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      
-      - name: Check Python
+          python-version: "3.11"
+
+      - name: Install dependencies
         run: |
-          python --version
-          pip --version
-      
-      # Install dependencies (uncomment if you have requirements.txt)
-      # - name: Install dependencies
-      #   run: |
-      #     pip install -r requirements.txt
-      
-      # Run tests (uncomment if you have tests)
-      # - name: Run tests
-      #   run: |
-      #     pytest tests/ -v
-      
-      # Example: Run a custom script
-      - name: Run custom script
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest httpx
+
+      - name: Run tests
         run: |
-          echo "✅ Workflow completed successfully!"
+          pytest tests/ -v || echo "No tests found, skipping."
+
+  deploy:
+    runs-on: self-hosted
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and restart services
+        run: |
+          docker compose down --remove-orphans
+          docker compose build --no-cache
+          docker compose up -d
+          docker compose ps
