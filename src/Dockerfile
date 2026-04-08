@@ -4,12 +4,12 @@ WORKDIR /app
 
 RUN apk upgrade --no-cache
 
-COPY requirements.txt .
+COPY src/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 ENV PYTHONDONTWRITEBYTECODE=1
 
-COPY main.py .
+COPY src/main.py .
 
 EXPOSE 8000
 

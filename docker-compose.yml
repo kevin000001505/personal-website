@@ -20,6 +20,9 @@ services:
       dockerfile: src/Dockerfile
     container_name: fastapi
     restart: unless-stopped
+    environment:
+      - API_KEY=${API_KEY}
+      - URL=${URL}
     ports:
       - "8000:8000"
     healthcheck:
