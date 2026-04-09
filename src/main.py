@@ -17,7 +17,7 @@ from pydantic_ai import ModelMessagesTypeAdapter
 
 logfire.configure(service_name="kevin-personal-website")
 logfire.instrument_pydantic_ai()
-logfire.instrument_httpx()
+logfire.instrument_httpx(capture_all=True)
 
 
 @asynccontextmanager
