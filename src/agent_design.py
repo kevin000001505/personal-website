@@ -8,7 +8,7 @@ from pydantic_ai.providers.openai import OpenAIProvider
 
 from pathlib import Path
 
-SYSTEM_PROMPT = (Path(__file__).parent / "prompts/concise_system_prompt.md").read_text()
+SYSTEM_PROMPT = (Path(__file__).parent / "prompts/system_prompt.md").read_text()
 
 load_dotenv()
 
@@ -80,6 +80,6 @@ if __name__ == "__main__":
             print("A: ", end="", flush=True)
             async for chunk in ask(agent, question):
                 print(chunk, end="", flush=True)
-            print()
+            print()  # newline after each answer
 
     asyncio.run(main())
