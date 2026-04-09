@@ -3,3 +3,4 @@ uvicorn[standard]>=0.30.0
 httpx>=0.27.0
 pydantic-ai-slim[logfire, openai]>=1.78.0
 python-dotenv>=1.2.2
+logfire[fastapi]>=4.31.0

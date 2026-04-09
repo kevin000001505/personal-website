@@ -11,8 +11,8 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
-from agent_design import ask, create_agent
+from fastapi.responses import StreamingResponse
+from agent_design import create_agent
 from pydantic_ai import ModelMessagesTypeAdapter
 
 logfire.configure()
