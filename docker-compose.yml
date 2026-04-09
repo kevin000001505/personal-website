@@ -23,8 +23,8 @@ services:
     container_name: fastapi
     restart: unless-stopped
     environment:
-      - API_KEY=${API_KEY}
-      - URL=${URL}
+      - AI_SERVER_API_KEY=${AI_SERVER_API_KEY}
+      - AI_SERVER_URL=${AI_SERVER_URL}
     ports:
       - "8000:8000"
     healthcheck:
