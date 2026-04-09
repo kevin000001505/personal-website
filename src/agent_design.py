@@ -20,7 +20,6 @@ def _resolve_base_url() -> str | None:
     if not raw:
         return None
 
-    # Handle quoted values from .env like "http://host:8080".
     raw = raw.strip().strip('"').strip("'")
     normalized = raw.rstrip("/")
 
