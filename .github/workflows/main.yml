@@ -33,6 +33,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+      
+      - name: Write env file
+        run: |
+          echo "AI_SERVER_API_KEY=${{ secrets.AI_SERVER_API_KEY }}" > .env
+          echo "AI_SERVER_URL=${{ secrets.AI_SERVER_URL }}" >> .env
 
       - name: Build and restart services
         env:

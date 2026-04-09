@@ -14,10 +14,12 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 app = FastAPI(title="Personal Website API", version="1.0.0")
 
-AI_SERVER_URL = os.getenv("AI_SERVER_URL") or os.getenv("URL")
-AI_SERVER_API_KEY = os.getenv("AI_SERVER_API_KEY") or os.getenv("API_KEY")
+AI_SERVER_URL = os.getenv("AI_SERVER_URL") or os.getenv("AI_SERVER_URL")
+AI_SERVER_API_KEY = os.getenv("AI_SERVER_API_KEY") or os.getenv("AI_SERVER_API_KEY")
 AI_TIMEOUT_SECONDS = float(os.getenv("AI_TIMEOUT_SECONDS", "60"))
-DEFAULT_AI_RESPONSE_TEXT = os.getenv("DEFAULT_AI_RESPONSE_TEXT", "Hello! How can I help you today?")
+DEFAULT_AI_RESPONSE_TEXT = os.getenv(
+    "DEFAULT_AI_RESPONSE_TEXT", "Hello! How can I help you today?"
+)
 FALLBACK_RESPONSE_TEXT = os.getenv(
     "FALLBACK_RESPONSE_TEXT",
     "Sorry, Kevin is busy fixing me right now! 🔧 But you can still look around the page to learn more about him. Check out his projects, skills, and homelab sections — there's a lot of cool stuff!",
@@ -108,7 +110,9 @@ def _extract_ai_preview(payload: Any) -> str | None:
 
 def _to_upstream_payload(payload: Any) -> dict[str, Any]:
     if not isinstance(payload, dict):
-        raise HTTPException(status_code=400, detail="Request body must be a JSON object")
+        raise HTTPException(
+            status_code=400, detail="Request body must be a JSON object"
+        )
 
     messages = payload.get("messages")
     if isinstance(messages, list) and messages:
@@ -147,7 +151,10 @@ def _resolve_default_response_text(payload: Any) -> str:
     if not isinstance(payload, dict):
         return DEFAULT_AI_RESPONSE_TEXT
 
-    if isinstance(payload.get("default_response"), str) and payload["default_response"].strip():
+    if (
+        isinstance(payload.get("default_response"), str)
+        and payload["default_response"].strip()
+    ):
         return payload["default_response"].strip()
 
     if isinstance(payload.get("default_response"), dict):
@@ -255,7 +262,10 @@ async def request_logging_middleware(request: Request, call_next):
 
     body_payload: dict[str, Any] | None = None
     content_type = request.headers.get("content-type", "")
-    if request.method in {"POST", "PUT", "PATCH"} and "application/json" in content_type:
+    if (
+        request.method in {"POST", "PUT", "PATCH"}
+        and "application/json" in content_type
+    ):
         raw_body = await request.body()
         if raw_body:
             try:
@@ -312,14 +322,20 @@ def root():
 @app.post("/ai/proxy")
 async def ai_proxy(request: Request):
     if not AI_SERVER_URL:
-        raise HTTPException(status_code=500, detail="AI_SERVER_URL (or URL) is not configured")
+        raise HTTPException(
+            status_code=500, detail="AI_SERVER_URL (or URL) is not configured"
+        )
     if not AI_SERVER_API_KEY:
-        raise HTTPException(status_code=500, detail="AI_SERVER_API_KEY (or API_KEY) is not configured")
+        raise HTTPException(
+            status_code=500, detail="AI_SERVER_API_KEY (or API_KEY) is not configured"
+        )
 
     try:
         payload = await request.json()
     except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=400, detail="Request body must be valid JSON") from exc
+        raise HTTPException(
+            status_code=400, detail="Request body must be valid JSON"
+        ) from exc
 
     upstream_payload = _to_upstream_payload(payload)
     headers: dict[str, str] = {
@@ -330,11 +346,17 @@ async def ai_proxy(request: Request):
     start = time.perf_counter()
     try:
         async with httpx.AsyncClient(timeout=AI_TIMEOUT_SECONDS) as client:
-            upstream_response = await client.post(AI_SERVER_URL, json=upstream_payload, headers=headers)
+            upstream_response = await client.post(
+                AI_SERVER_URL, json=upstream_payload, headers=headers
+            )
     except httpx.TimeoutException as exc:
-        raise HTTPException(status_code=504, detail="AI server request timed out") from exc
+        raise HTTPException(
+            status_code=504, detail="AI server request timed out"
+        ) from exc
     except httpx.RequestError as exc:
-        raise HTTPException(status_code=502, detail=f"AI server request failed: {exc}") from exc
+        raise HTTPException(
+            status_code=502, detail=f"AI server request failed: {exc}"
+        ) from exc
 
     duration_ms = int((time.perf_counter() - start) * 1000)
     response_content_type = upstream_response.headers.get("content-type", "")
@@ -357,7 +379,9 @@ async def ai_proxy(request: Request):
         ai_response_preview=_truncate(_extract_ai_preview(response_body), 300),
     )
 
-    return JSONResponse(status_code=upstream_response.status_code, content=response_body)
+    return JSONResponse(
+        status_code=upstream_response.status_code, content=response_body
+    )
 
 
 @app.post("/ai/proxy/stream")
@@ -365,7 +389,9 @@ async def ai_proxy_stream(request: Request):
     try:
         payload = await request.json()
     except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=400, detail="Request body must be valid JSON") from exc
+        raise HTTPException(
+            status_code=400, detail="Request body must be valid JSON"
+        ) from exc
 
     request_id = getattr(request.state, "request_id", None)
     client_ip = getattr(request.state, "client_ip", _get_client_ip(request))
@@ -429,7 +455,9 @@ async def ai_proxy_stream(request: Request):
         pool=AI_TIMEOUT_SECONDS,
     )
     client = httpx.AsyncClient(timeout=timeout)
-    request_obj = client.build_request("POST", AI_SERVER_URL, json=upstream_payload, headers=headers)
+    request_obj = client.build_request(
+        "POST", AI_SERVER_URL, json=upstream_payload, headers=headers
+    )
 
     try:
         upstream_response = await client.send(request_obj, stream=True)
@@ -460,7 +488,10 @@ async def ai_proxy_stream(request: Request):
         error_text = await upstream_response.aread()
         await upstream_response.aclose()
         await client.aclose()
-        error_detail = error_text.decode("utf-8", errors="replace") or "AI server returned an error"
+        error_detail = (
+            error_text.decode("utf-8", errors="replace")
+            or "AI server returned an error"
+        )
         return _stream_plain_text(
             text=FALLBACK_RESPONSE_TEXT,
             event_name="ai_proxy_stream_fallback",
