@@ -1,4 +1,4 @@
-import asyncio
+import logfire
 import json
 import logging
 import os
@@ -15,6 +15,10 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from agent_design import ask, create_agent
 from pydantic_ai import ModelMessagesTypeAdapter
 
+logfire.configure()
+logfire.instrument_pydantic_ai()
+logfire.instrument_httpx()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -25,7 +29,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Kevin Personal Website API", version="1.0.0", lifespan=lifespan)
-
+logfire.instrument_fastapi(app)
 
 CONTENT_TYPE_JSON = "application/json"
 

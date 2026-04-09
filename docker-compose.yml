@@ -24,8 +24,8 @@ services:
     restart: unless-stopped
     environment:
       - AI_SERVER_API_KEY=${AI_SERVER_API_KEY}
-      - AI_SERVER_URL=${AI_SERVER_URL}
       - AI_BASE_URL=${AI_BASE_URL}
+      - LOGFIRE_TOKEN=${LOGFIRE_TOKEN}
     ports:
       - "8000:8000"
     healthcheck:
