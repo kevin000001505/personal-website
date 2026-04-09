@@ -1595,8 +1595,8 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
   'use strict';
 
   // ── Configuration ──
-  const API_URL = 'http://localhost:8000';
-  const FALLBACK_MSG = "Sorry, Kevin is busy fixing me right now! 🔧 But you can still look around the page to learn more about him. Check out his projects, skills, and homelab sections — there's a lot of cool stuff!";
+  const API_URL = '/ai/proxy/stream';
+  const LOCAL_ERROR_MSG = "Unable to reach the assistant right now. Please try again shortly.";
 
   // ── DOM refs ──
   const fab = document.getElementById('kermitFab');
@@ -1676,6 +1676,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     msg.textContent = text;
     messagesEl.appendChild(msg);
     messagesEl.scrollTop = messagesEl.scrollHeight;
+    return msg;
   }
 
   function showTyping() { typingEl.classList.add('active'); messagesEl.scrollTop = messagesEl.scrollHeight; }
@@ -1823,18 +1824,44 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
         body: JSON.stringify({ message: text }),
       });
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
 
-      const data = await response.json();
+      const botMsgEl = addMessage('', 'bot');
       hideTyping();
 
-      const reply = data.reply || data.response || data.message || data.answer || data.text || data.content || FALLBACK_MSG;
-      addMessage(reply, 'bot');
+      const contentType = (response.headers.get('content-type') || '').toLowerCase();
+
+      if (!response.body || contentType.includes('application/json')) {
+        const data = await response.json();
+        const reply = data.reply || data.response || data.message || data.answer || data.text || data.content || LOCAL_ERROR_MSG;
+        botMsgEl.textContent = reply;
+      } else {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let streamedText = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          if (!chunk) continue;
+
+          streamedText += chunk;
+          botMsgEl.textContent = streamedText;
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        streamedText += decoder.decode();
+        botMsgEl.textContent = streamedText.trim() || LOCAL_ERROR_MSG;
+      }
 
     } catch (err) {
       console.warn('Kermit API error:', err);
       hideTyping();
-      addMessage(FALLBACK_MSG, 'bot');
+      addMessage(LOCAL_ERROR_MSG, 'bot');
     }
 
     sendBtn.disabled = false;

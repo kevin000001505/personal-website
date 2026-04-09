@@ -1,8 +1,10 @@
 services:
   website:
     build: .
-    container_name: kevin-website
+    container_name: frontend
     restart: unless-stopped
+    depends_on:
+      - fastapi
     ports:
       - "3080:80"
     healthcheck:
@@ -26,7 +28,7 @@ services:
     ports:
       - "8000:8000"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
       interval: 30s
       timeout: 3s
       retries: 3
