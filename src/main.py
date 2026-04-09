@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 
-app = FastAPI(title="Personal Website API", version="1.0.0")
+app = FastAPI(title="Kevin Personal Website API", version="1.0.0")
 
 AI_SERVER_URL = os.getenv("AI_SERVER_URL") or os.getenv("AI_SERVER_URL")
 AI_SERVER_API_KEY = os.getenv("AI_SERVER_API_KEY") or os.getenv("AI_SERVER_API_KEY")
