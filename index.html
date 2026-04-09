@@ -1608,6 +1608,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
   const peekLeft = document.getElementById('peekLeft');
   const peekTop = document.getElementById('peekTop');
   const peekBottom = document.getElementById('peekBottom');
+  const peekEls = [peekLeft, peekTop, peekBottom].filter(Boolean);
 
   let isOpen = false;
   let isFirstOpen = true;
@@ -1691,15 +1692,21 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     });
   }
 
+  function restoreDefaultQuickReplies() {
+    setQuickReplies(defaultQuickReplies);
+  }
+
   // ── Clear all nudge animations ──
   function clearNudgeAnimations() {
-    fab.classList.remove('nudge-1', 'nudge-2', 'nudge-3', 'nudge-4', 'nudge-5');
-    fab.style.width = '';
-    fab.style.height = '';
-    peekLeft.classList.remove('visible');
-    peekTop.classList.remove('visible');
-    peekBottom.classList.remove('visible');
-    nudge.classList.remove('urgent');
+    fab?.classList.remove('nudge-1', 'nudge-2', 'nudge-3', 'nudge-4', 'nudge-5');
+    if (fab) {
+      fab.style.width = '';
+      fab.style.height = '';
+    }
+    peekLeft?.classList.remove('visible');
+    peekTop?.classList.remove('visible');
+    peekBottom?.classList.remove('visible');
+    nudge?.classList.remove('urgent');
   }
 
   // ── Show nudge at current escalation level ──
@@ -1713,24 +1720,24 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     const msg = msgs[Math.floor(Math.random() * msgs.length)];
 
     // Show speech bubble
-    nudgeText.textContent = msg;
-    nudge.classList.add('visible');
-    if (level >= 3) nudge.classList.add('urgent');
+    if (nudgeText) nudgeText.textContent = msg;
+    nudge?.classList.add('visible');
+    if (level >= 3) nudge?.classList.add('urgent');
 
     // Trigger FAB animation
     if (level >= 1 && level <= 5) {
-      fab.classList.add(`nudge-${level}`);
+      fab?.classList.add(`nudge-${level}`);
     }
 
     // Level 2+: Peeking frogs from edges
     if (level >= 2) {
-      setTimeout(() => { peekLeft.classList.add('visible'); }, 300);
+      setTimeout(() => { peekLeft?.classList.add('visible'); }, 300);
     }
     if (level >= 3) {
-      setTimeout(() => { peekTop.classList.add('visible'); }, 600);
+      setTimeout(() => { peekTop?.classList.add('visible'); }, 600);
     }
     if (level >= 4) {
-      setTimeout(() => { peekBottom.classList.add('visible'); }, 900);
+      setTimeout(() => { peekBottom?.classList.add('visible'); }, 900);
     }
 
     // Level 5: Emoji frog rain!
@@ -1742,7 +1749,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     const hideDelay = level >= 4 ? 10000 : level >= 2 ? 8000 : 6000;
     clearTimeout(escalationTimeout);
     escalationTimeout = setTimeout(() => {
-      nudge.classList.remove('visible', 'urgent');
+      nudge?.classList.remove('visible', 'urgent');
       clearNudgeAnimations();
     }, hideDelay);
 
@@ -1751,7 +1758,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
   }
 
   function hideNudge() {
-    nudge.classList.remove('visible', 'urgent');
+    nudge?.classList.remove('visible', 'urgent');
     clearNudgeAnimations();
     clearTimeout(escalationTimeout);
   }
@@ -1791,14 +1798,14 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     // If mouse near left edge, peek from left
     if (e.clientX < 80) {
       peekCooldown = true;
-      peekLeft.classList.add('visible');
-      setTimeout(() => { peekLeft.classList.remove('visible'); peekCooldown = false; }, 2000);
+      peekLeft?.classList.add('visible');
+      setTimeout(() => { peekLeft?.classList.remove('visible'); peekCooldown = false; }, 2000);
     }
     // If mouse near top
     if (e.clientY < 80) {
       peekCooldown = true;
-      peekTop.classList.add('visible');
-      setTimeout(() => { peekTop.classList.remove('visible'); peekCooldown = false; }, 2000);
+      peekTop?.classList.add('visible');
+      setTimeout(() => { peekTop?.classList.remove('visible'); peekCooldown = false; }, 2000);
     }
   }
 
@@ -1860,6 +1867,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     }
 
     sendBtn.disabled = false;
+    restoreDefaultQuickReplies();
     inputEl.focus();
   }
 
@@ -1867,16 +1875,16 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
   function openChat() {
     isOpen = true;
     hasEverOpened = true;
-    chat.classList.add('open');
-    fab.classList.add('open');
+    chat?.classList.add('open');
+    fab?.classList.add('open');
     hideNudge();
     disableMousePeek();
     stopEscalation();
 
     // Remove all peeking frogs
-    peekLeft.classList.remove('visible');
-    peekTop.classList.remove('visible');
-    peekBottom.classList.remove('visible');
+    peekLeft?.classList.remove('visible');
+    peekTop?.classList.remove('visible');
+    peekBottom?.classList.remove('visible');
 
     if (isFirstOpen) {
       isFirstOpen = false;
@@ -1885,16 +1893,16 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
         "Ribbit! 🐸 Hi there! I'm Kermit, Kevin's trusty assistant. Ask me anything about Kevin — his experience, projects, skills, homelab, or how to get in touch!",
       ];
       addMessage(escalationLevel > 2 ? greetings[0] : greetings[1], 'bot');
-      setQuickReplies(defaultQuickReplies);
     }
+    restoreDefaultQuickReplies();
 
     setTimeout(() => inputEl.focus(), 350);
   }
 
   function closeChat() {
     isOpen = false;
-    chat.classList.remove('open');
-    fab.classList.remove('open');
+    chat?.classList.remove('open');
+    fab?.classList.remove('open');
   }
 
   function stopEscalation() {
@@ -1904,26 +1912,34 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
   }
 
   // ── Event Listeners ──
-  fab.addEventListener('click', () => {
-    if (isOpen) closeChat();
-    else openChat();
-  });
+  if (fab) {
+    fab.addEventListener('click', () => {
+      if (isOpen) closeChat();
+      else openChat();
+    });
+  }
 
-  closeBtn.addEventListener('click', closeChat);
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeChat);
+  }
 
-  nudgeClose.addEventListener('click', (e) => {
-    e.stopPropagation();
-    hideNudge();
-    // Closing nudge does NOT stop escalation — it keeps coming back!
-  });
+  if (nudgeClose) {
+    nudgeClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hideNudge();
+      // Closing nudge does NOT stop escalation — it keeps coming back!
+    });
+  }
 
-  nudge.addEventListener('click', () => {
-    hideNudge();
-    openChat();
-  });
+  if (nudge) {
+    nudge.addEventListener('click', () => {
+      hideNudge();
+      openChat();
+    });
+  }
 
   // Peeking frogs are also clickable
-  [peekLeft, peekTop, peekBottom].forEach(el => {
+  peekEls.forEach(el => {
     el.style.cursor = 'pointer';
     el.style.pointerEvents = 'auto';
     el.addEventListener('click', () => {
@@ -1932,14 +1948,16 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     });
   });
 
-  sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+  if (sendBtn && inputEl) {
+    sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
 
-  inputEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage(inputEl.value);
-    }
-  });
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(inputEl.value);
+      }
+    });
+  }
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isOpen) closeChat();
