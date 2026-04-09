@@ -9,7 +9,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 ENV PYTHONDONTWRITEBYTECODE=1
 
-COPY src/main.py .
+# Copy the full backend source tree so intra-module imports work
+# (e.g., main.py -> agent_design.py -> prompts/system_prompt.md).
+COPY src/ .
 
 EXPOSE 8000
 

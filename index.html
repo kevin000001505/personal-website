@@ -895,7 +895,7 @@
     right: 28px;
     z-index: 1000;
     width: 380px;
-    max-height: 520px;
+    height: 520px;
     background: var(--bg);
     border: 1px solid #4a8c5c;
     border-radius: 20px;
@@ -903,15 +903,90 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-width: 300px;
+    min-height: 400px;
     opacity: 0;
     transform: translateY(20px) scale(0.95);
     pointer-events: none;
     transition: opacity 0.35s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+  .kermit-resize-handle {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    z-index: 10;
+  }
+  .kermit-resize-handle::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-color: #4a8c5c;
+    border-style: solid;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+  .kermit-resize-handle:hover::before { opacity: 1; }
+
+  /* Top-left */
+  .kermit-resize-handle.nw {
+    top: 4px; left: 4px;
+    cursor: nw-resize;
+  }
+  .kermit-resize-handle.nw::before {
+    top: 0; left: 0;
+    border-width: 2px 0 0 2px;
+    border-radius: 3px 0 0 0;
+  }
+
+  /* Top-right */
+  .kermit-resize-handle.ne {
+    top: 4px; right: 4px;
+    cursor: ne-resize;
+  }
+  .kermit-resize-handle.ne::before {
+    top: 0; right: 0;
+    border-width: 2px 2px 0 0;
+    border-radius: 0 3px 0 0;
+  }
+
+  /* Bottom-left */
+  .kermit-resize-handle.sw {
+    bottom: 4px; left: 4px;
+    cursor: sw-resize;
+  }
+  .kermit-resize-handle.sw::before {
+    bottom: 0; left: 0;
+    border-width: 0 0 2px 2px;
+    border-radius: 0 0 0 3px;
+  }
+
+  /* Bottom-right */
+  .kermit-resize-handle.se {
+    bottom: 4px; right: 4px;
+    cursor: se-resize;
+  }
+  .kermit-resize-handle.se::before {
+    bottom: 0; right: 0;
+    border-width: 0 2px 2px 0;
+    border-radius: 0 0 3px 0;
+  }
   .kermit-chat.open {
     opacity: 1;
     transform: translateY(0) scale(1);
     pointer-events: auto;
+  }
+  .kermit-chat::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 8px;
+    width: 10px;
+    height: 10px;
+    border-bottom: 2px solid #4a8c5c;
+    border-left: 2px solid #4a8c5c;
+    opacity: 0.4;
+    pointer-events: none;
   }
 
   /* ── Chat Header ── */
@@ -982,8 +1057,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    min-height: 260px;
-    max-height: 340px;
+    min-height: 20px;
     scroll-behavior: smooth;
   }
   .kermit-messages::-webkit-scrollbar { width: 5px; }
@@ -1525,6 +1599,10 @@
 
 <!-- Chat Window -->
 <div class="kermit-chat" id="kermitChat">
+  <div class="kermit-resize-handle nw" data-dir="nw"></div>
+  <div class="kermit-resize-handle ne" data-dir="ne"></div>
+  <div class="kermit-resize-handle sw" data-dir="sw"></div>
+  <div class="kermit-resize-handle se" data-dir="se"></div>
   <div class="kermit-chat-header">
     <div class="kermit-avatar">🤖</div>
     <div class="kermit-header-info">
@@ -1609,6 +1687,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
   const peekTop = document.getElementById('peekTop');
   const peekBottom = document.getElementById('peekBottom');
   const peekEls = [peekLeft, peekTop, peekBottom].filter(Boolean);
+  let conversationHistory = [];
 
   let isOpen = false;
   let isFirstOpen = true;
@@ -1666,10 +1745,67 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
   ];
 
   // ── Helpers ──
+
+  function formatBotText(text) {
+    let html = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Bold: **text**
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // Inline code: `code`
+    html = html.replace(/`([^`]+)`/g, '<code style="font-family:var(--font-mono);font-size:0.8em;background:rgba(122,79,45,0.08);padding:1px 4px;border-radius:3px;border:1px solid rgba(122,79,45,0.15);">$1</code>');
+
+    const lines = html.split('\n');
+    let result = [];
+    let inList = false;
+
+    for (const line of lines) {
+      // 👇 Headings
+      const h3 = line.match(/^###\s+(.+)/);
+      const h2 = line.match(/^##\s+(.+)/);
+      const h1 = line.match(/^#\s+(.+)/);
+      const bulletMatch = line.match(/^[\s]*[-*•]\s+(.+)/);
+      const numberedMatch = line.match(/^[\s]*(\d+)\.\s+(.+)/);
+
+      if (h3) {
+        if (inList) { result.push(`</${inList}>`); inList = false; }
+        result.push(`<div style="font-weight:700;font-size:0.88em;color:var(--accent);margin:10px 0 4px;letter-spacing:0.3px;border-bottom:1px solid var(--border);padding-bottom:3px;">${h3[1]}</div>`);
+      } else if (h2) {
+        if (inList) { result.push(`</${inList}>`); inList = false; }
+        result.push(`<div style="font-weight:700;font-size:0.95em;color:var(--text-bright);margin:12px 0 5px;">${h2[1]}</div>`);
+      } else if (h1) {
+        if (inList) { result.push(`</${inList}>`); inList = false; }
+        result.push(`<div style="font-weight:800;font-size:1em;color:var(--text-bright);margin:14px 0 6px;">${h1[1]}</div>`);
+      } else if (bulletMatch) {
+        if (inList !== 'ul') { if (inList) result.push(`</${inList}>`); result.push('<ul style="margin:6px 0 6px 0;padding:0;list-style:none;">'); inList = 'ul'; }
+        result.push(`<li style="position:relative;padding-left:14px;margin:3px 0;"><span style="position:absolute;left:0;color:#5aad6e;font-size:0.75em;top:3px;">▸</span>${bulletMatch[1]}</li>`);
+      } else if (numberedMatch) {
+        if (inList !== 'ol') { if (inList) result.push(`</${inList}>`); result.push('<ol style="margin:6px 0 6px 0;padding:0;list-style:none;">'); inList = 'ol'; }
+        result.push(`<li style="position:relative;padding-left:18px;margin:3px 0;"><span style="position:absolute;left:0;color:#5aad6e;font-family:var(--font-mono);font-size:0.75em;">${numberedMatch[1]}.</span>${numberedMatch[2]}</li>`);
+      } else {
+        if (inList) { result.push(`</${inList}>`); inList = false; }
+        if (line.trim() === '') {
+          result.push('<div style="height:5px;"></div>');
+        } else {
+          result.push(`<span style="display:block;">${line}</span>`);
+        }
+      }
+    }
+    if (inList) result.push(`</${inList}>`);
+
+    return result.join('');
+  }
   function addMessage(text, sender) {
     const msg = document.createElement('div');
     msg.className = `kermit-msg ${sender}`;
-    msg.textContent = text;
+    if (sender === 'bot' && text) {
+      msg.innerHTML = formatBotText(text);
+    } else {
+      msg.textContent = text;
+    }
     messagesEl.appendChild(msg);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return msg;
@@ -1811,64 +1947,94 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
 
   // ── Send message ──
   async function sendMessage(text) {
-    if (!text.trim()) return;
+      if (!text.trim()) return;
 
-    addMessage(text, 'user');
-    inputEl.value = '';
-    sendBtn.disabled = true;
-    showTyping();
-    quickRepliesEl.innerHTML = '';
+      addMessage(text, 'user');
+      inputEl.value = '';
+      sendBtn.disabled = true;
+      showTyping();
+      quickRepliesEl.innerHTML = '';
 
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
-      });
+      try {
+          const response = await fetch(API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  message: text,
+                  history: conversationHistory,
+              }),
+          });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
+          if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
+          const botMsgEl = addMessage('', 'bot');
+          hideTyping();
+
+          const contentType = (response.headers.get('content-type') || '').toLowerCase();
+          let streamedText = '';
+
+          if (!response.body || contentType.includes('application/json')) {
+              const data = await response.json();
+              streamedText = data.reply || data.response || data.message || data.answer || data.text || data.content || LOCAL_ERROR_MSG;
+              botMsgEl.textContent = streamedText;
+          } else {
+              const reader = response.body.getReader();
+              const decoder = new TextDecoder();
+
+              while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) break;
+                  const chunk = decoder.decode(value, { stream: true });
+                  if (!chunk) continue;
+                  streamedText += chunk;
+
+                  // Strip history trailer before displaying
+                  const markerIdx = streamedText.indexOf('\n__HISTORY__');
+                  const displayText = markerIdx !== -1
+                      ? streamedText.slice(0, markerIdx)
+                      : streamedText;
+                  botMsgEl.innerHTML = formatBotText(displayText);
+                  messagesEl.scrollTop = messagesEl.scrollHeight;
+              }
+
+              streamedText += decoder.decode();
+
+              // 👇 Extract and store history trailer
+              const markerIdx = streamedText.indexOf('\n__HISTORY__');
+              if (markerIdx !== -1) {
+                  const historyJson = streamedText.slice(markerIdx + '\n__HISTORY__'.length);
+                  streamedText = streamedText.slice(0, markerIdx).trim();
+                  try {
+                      conversationHistory = JSON.parse(historyJson);  // pydantic-ai native format
+                  } catch (e) {
+                      console.warn('Failed to parse history:', e);
+                  }
+              } else {
+                  streamedText = streamedText.trim();
+              }
+
+              botMsgEl.innerHTML = formatBotText(streamedText) || LOCAL_ERROR_MSG;
+              streamedText = botMsgEl.textContent;
+          }
+
+
+          // 👇 Update history after successful response
+          if (conversationHistory.length > 20) {
+              conversationHistory = conversationHistory.slice(-20);
+          }
+
+      } catch (err) {
+          console.warn('Kermit API error:', err);
+          hideTyping();
+          addMessage(LOCAL_ERROR_MSG, 'bot');
       }
 
-      const botMsgEl = addMessage('', 'bot');
-      hideTyping();
-
-      const contentType = (response.headers.get('content-type') || '').toLowerCase();
-
-      if (!response.body || contentType.includes('application/json')) {
-        const data = await response.json();
-        const reply = data.reply || data.response || data.message || data.answer || data.text || data.content || LOCAL_ERROR_MSG;
-        botMsgEl.textContent = reply;
-      } else {
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let streamedText = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          if (!chunk) continue;
-
-          streamedText += chunk;
-          botMsgEl.textContent = streamedText;
-          messagesEl.scrollTop = messagesEl.scrollHeight;
-        }
-
-        streamedText += decoder.decode();
-        botMsgEl.textContent = streamedText.trim() || LOCAL_ERROR_MSG;
-      }
-
-    } catch (err) {
-      console.warn('Kermit API error:', err);
-      hideTyping();
-      addMessage(LOCAL_ERROR_MSG, 'bot');
-    }
-
-    sendBtn.disabled = false;
-    restoreDefaultQuickReplies();
-    inputEl.focus();
+      sendBtn.disabled = false;
+      restoreDefaultQuickReplies();
+      inputEl.focus();
   }
 
   // ── Toggle chat ──
@@ -1910,6 +2076,81 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     clearTimeout(escalationTimeout);
     nudgeInterval = null;
   }
+  // ── 4-corner resize logic ──
+  (function() {
+    const MIN_W = 300, MIN_H = 400;
+
+    document.querySelectorAll('.kermit-resize-handle').forEach(handle => {
+      handle.addEventListener('mousedown', e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const dir = handle.dataset.dir;
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const rect = chat.getBoundingClientRect();
+        const startW = rect.width;
+        const startH = rect.height;
+
+        // Distances from each viewport edge — these are the FIXED anchors
+        const anchorRight  = window.innerWidth  - rect.right;   // e/ne/se: right edge stays here
+        const anchorBottom = window.innerHeight - rect.bottom;  // s/sw/se: bottom edge stays here
+        const anchorLeft   = rect.left;                         // w/nw/sw: left edge stays here (unused — we anchor right instead)
+        const anchorTop    = rect.top;                          // n/nw/ne: top edge stays here (unused — we anchor bottom instead)
+
+        function onMove(e) {
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+
+          let newW = startW;
+          let newH = startH;
+
+          // East: grows right, max = space available to the right of left edge
+          if (dir.includes('e')) newW = Math.max(MIN_W, Math.min(window.innerWidth - anchorLeft - 8, startW + dx));
+          // West: grows left, max = space available to the left of right edge
+          if (dir.includes('w')) newW = Math.max(MIN_W, Math.min(window.innerWidth - anchorRight - 8, startW - dx));
+
+          // South: grows down, max = space available below top edge
+          if (dir.includes('s')) newH = Math.max(MIN_H, Math.min(window.innerHeight - anchorTop - 8, startH + dy));
+          // North: grows up, max = space available above bottom edge
+          if (dir.includes('n')) newH = Math.max(MIN_H, Math.min(window.innerHeight - anchorBottom - 8, startH - dy));
+
+          chat.style.width  = newW + 'px';
+          chat.style.height = newH + 'px';
+
+          // East handles: right edge moves, left is anchored → keep right fixed
+          if (dir.includes('e')) {
+            chat.style.right = anchorRight + 'px';
+            chat.style.left  = 'auto';
+          }
+          // West handles: left edge moves, right is anchored → keep right fixed, window grows left automatically
+          if (dir.includes('w')) {
+            chat.style.right = anchorRight + 'px';
+            chat.style.left  = 'auto';
+          }
+
+          // South handles: bottom edge moves, top is anchored → keep bottom fixed
+          if (dir.includes('s')) {
+            chat.style.bottom = anchorBottom + 'px';
+            chat.style.top    = 'auto';
+          }
+          // North handles: top edge moves, bottom is anchored → keep bottom fixed, window grows up automatically
+          if (dir.includes('n')) {
+            chat.style.bottom = anchorBottom + 'px';
+            chat.style.top    = 'auto';
+          }
+        }
+
+        function onUp() {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+  })();
 
   // ── Event Listeners ──
   if (fab) {

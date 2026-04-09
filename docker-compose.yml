@@ -25,6 +25,7 @@ services:
     environment:
       - AI_SERVER_API_KEY=${AI_SERVER_API_KEY}
       - AI_SERVER_URL=${AI_SERVER_URL}
+      - AI_BASE_URL=${AI_BASE_URL}
     ports:
       - "8000:8000"
     healthcheck:
