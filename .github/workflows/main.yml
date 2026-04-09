@@ -37,7 +37,8 @@ jobs:
       - name: Write env file
         run: |
           echo "AI_SERVER_API_KEY=${{ secrets.AI_SERVER_API_KEY }}" > .env
-          echo "AI_SERVER_URL=${{ secrets.AI_SERVER_URL }}" >> .env
+          echo "AI_BASE_URL=${{ secrets.AI_BASE_URL }}" >> .env
+          echo "LOGFIRE_TOKEN=${{ secrets.LOGFIRE_TOKEN }}" >> .env
 
       - name: Build and restart services
         env:
