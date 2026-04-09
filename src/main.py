@@ -15,7 +15,7 @@ from fastapi.responses import StreamingResponse
 from agent_design import create_agent
 from pydantic_ai import ModelMessagesTypeAdapter
 
-logfire.configure()
+logfire.configure(service_name="kevin-personal-website")
 logfire.instrument_pydantic_ai()
 logfire.instrument_httpx()
 

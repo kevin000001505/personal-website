@@ -1,0 +1,49 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: ${LOKI_URL}  # your Loki URL
+
+scrape_configs:
+  - job_name: fastapi
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: name
+            values: ["fastapi"]  # matches your container name
+    relabel_configs:
+      - source_labels: [__meta_docker_container_name]
+        target_label: container
+      - source_labels: [__meta_docker_container_log_stream]
+        target_label: stream
+    pipeline_stages:
+      # Parse the JSON log lines
+      - json:
+          expressions:
+            event:       event
+            request_id:  request_id
+            client_ip:   client_ip
+            path:        path
+            method:      method
+            status_code: status_code
+            duration_ms: duration_ms
+            stream_error: stream_error
+            fallback_reason: fallback_reason
+            user_prompt_preview: user_prompt_preview
+            ai_response_preview: ai_response_preview
+      # Promote parsed fields to Loki labels (keep labels low-cardinality)
+      - labels:
+          event:
+          path:
+          method:
+          stream_error:
+          fallback_reason:
+      # Use the ts field from the log as the timestamp
+      - timestamp:
+          source: ts
+          format: RFC3339Nano

@@ -37,7 +37,18 @@ services:
       interval: 30s
       timeout: 3s
       retries: 3
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock  # read Docker logs
+    depends_on:
+      - fastapi
+    env_file: .env
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
 
+      
 networks:
   app-net:
     driver: bridge
