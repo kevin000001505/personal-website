@@ -304,7 +304,7 @@ async def visitor_ping(request: Request):
 
     async with httpx.AsyncClient() as client:
         await client.post(
-            f"{NTFY_TOPIC}",
+            f"https://{NTFY_TOPIC}",
             content=f"IP: {ip}\nRef: {ref}",
             # HTTP headers must be ASCII; keep title plain text.
             headers={"Title": "Visitor", "Priority": "min"},
