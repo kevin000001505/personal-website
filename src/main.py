@@ -44,6 +44,7 @@ FALLBACK_RESPONSE_TEXT = os.getenv(
     "Sorry, Kevin is busy fixing me right now! 🔧 But you can still look around the page to learn more about him. Check out his projects, skills, and homelab sections — there's a lot of cool stuff!",
 )
 
+
 def _resolve_ntfy_endpoint(raw_topic: str | None) -> str | None:
     if not raw_topic:
         return None
@@ -52,7 +53,7 @@ def _resolve_ntfy_endpoint(raw_topic: str | None) -> str | None:
         return None
     if topic.startswith(("http://", "https://")):
         return topic
-    return f"https://{topic.lstrip('/')}"
+    return f"http://{topic.lstrip('/')}"
 
 
 NTFY_ENDPOINT = _resolve_ntfy_endpoint(os.getenv("NTFY_TOPIC"))
