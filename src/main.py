@@ -1,3 +1,5 @@
+import httpx
+
 import logfire
 import json
 import logging
@@ -287,3 +289,22 @@ async def ai_proxy_stream(request: Request):
         user_prompt_preview=user_prompt_preview,
         upstream_status=200,
     )
+
+
+NTFY_TOPIC = "ntfy.shiba-toast.com"  # stays server-side only
+
+
+@app.post("/api/ping")
+async def visitor_ping(request: Request):
+    ip = request.headers.get("x-forwarded-for") or (
+        request.client.host if request.client else "unknown"
+    )
+    ref = request.headers.get("referer", "direct")
+
+    async with httpx.AsyncClient() as client:
+        await client.post(
+            f"https://ntfy.sh/{NTFY_TOPIC}",
+            content=f"IP: {ip}\nRef: {ref}",
+            headers={"Title": "👀 Visitor", "Priority": "min"},
+        )
+    return {"ok": True}

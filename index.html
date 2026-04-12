@@ -1648,6 +1648,12 @@ document.addEventListener('mousemove', e => {
   orb.style.transform = `translate(${e.clientX - 300}px, ${e.clientY - 300}px)`;
 });
 
+// ── Visitor ping ──
+if (!sessionStorage.getItem('visited')) {
+  sessionStorage.setItem('visited', '1');
+  fetch('/api/ping', { method: 'POST' }).catch(() => {});
+}
+
 const revealEls = document.querySelectorAll('.reveal');
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
