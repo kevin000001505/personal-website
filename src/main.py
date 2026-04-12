@@ -44,6 +44,7 @@ FALLBACK_RESPONSE_TEXT = os.getenv(
     "Sorry, Kevin is busy fixing me right now! 🔧 But you can still look around the page to learn more about him. Check out his projects, skills, and homelab sections — there's a lot of cool stuff!",
 )
 
+NTFY_TOPIC = os.getenv("NTFY_TOPIC")
 
 logger = logging.getLogger("fastapi_app")
 if not logger.handlers:
@@ -291,7 +292,7 @@ async def ai_proxy_stream(request: Request):
     )
 
 
-NTFY_TOPIC = "ntfy.shiba-toast.com"  # stays server-side only
+# stays server-side only
 
 
 @app.post("/api/ping")
@@ -303,7 +304,7 @@ async def visitor_ping(request: Request):
 
     async with httpx.AsyncClient() as client:
         await client.post(
-            f"https://ntfy.sh/{NTFY_TOPIC}",
+            f"{NTFY_TOPIC}",
             content=f"IP: {ip}\nRef: {ref}",
             # HTTP headers must be ASCII; keep title plain text.
             headers={"Title": "Visitor", "Priority": "min"},
