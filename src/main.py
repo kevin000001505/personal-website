@@ -305,6 +305,7 @@ async def visitor_ping(request: Request):
         await client.post(
             f"https://ntfy.sh/{NTFY_TOPIC}",
             content=f"IP: {ip}\nRef: {ref}",
-            headers={"Title": "👀 Visitor", "Priority": "min"},
+            # HTTP headers must be ASCII; keep title plain text.
+            headers={"Title": "Visitor", "Priority": "min"},
         )
     return {"ok": True}
