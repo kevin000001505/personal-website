@@ -309,9 +309,7 @@ async def ai_proxy_stream(request: Request):
 
 @app.post("/api/ping")
 async def visitor_ping(request: Request):
-    ip = request.headers.get("x-forwarded-for") or (
-        request.client.host if request.client else "unknown"
-    )
+    ip = getattr(request.state, "client_ip", _get_client_ip(request))
     ref = request.headers.get("referer", "direct")
 
     if not NTFY_ENDPOINT:
