@@ -44,7 +44,18 @@ FALLBACK_RESPONSE_TEXT = os.getenv(
     "Sorry, Kevin is busy fixing me right now! 🔧 But you can still look around the page to learn more about him. Check out his projects, skills, and homelab sections — there's a lot of cool stuff!",
 )
 
-NTFY_TOPIC = os.getenv("NTFY_TOPIC")
+def _resolve_ntfy_endpoint(raw_topic: str | None) -> str | None:
+    if not raw_topic:
+        return None
+    topic = raw_topic.strip()
+    if not topic:
+        return None
+    if topic.startswith(("http://", "https://")):
+        return topic
+    return f"https://{topic.lstrip('/')}"
+
+
+NTFY_ENDPOINT = _resolve_ntfy_endpoint(os.getenv("NTFY_TOPIC"))
 
 logger = logging.getLogger("fastapi_app")
 if not logger.handlers:
@@ -302,11 +313,29 @@ async def visitor_ping(request: Request):
     )
     ref = request.headers.get("referer", "direct")
 
-    async with httpx.AsyncClient() as client:
-        await client.post(
-            f"https://{NTFY_TOPIC}",
-            content=f"IP: {ip}\nRef: {ref}",
-            # HTTP headers must be ASCII; keep title plain text.
-            headers={"Title": "Visitor", "Priority": "min"},
+    if not NTFY_ENDPOINT:
+        _log_event(
+            "visitor_ping_notify_skipped",
+            reason="ntfy_not_configured",
+            client_ip=ip,
+            ref=_truncate(ref, 200),
+        )
+        return {"ok": True}
+
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            await client.post(
+                NTFY_ENDPOINT,
+                content=f"IP: {ip}\nRef: {ref}",
+                # HTTP headers must be ASCII; keep title plain text.
+                headers={"Title": "Visitor", "Priority": "min"},
+            )
+    except (httpx.HTTPError, httpx.InvalidURL) as exc:
+        _log_event(
+            "visitor_ping_notify_failed",
+            client_ip=ip,
+            ref=_truncate(ref, 200),
+            endpoint=_truncate(NTFY_ENDPOINT, 200),
+            error=str(exc),
         )
     return {"ok": True}
