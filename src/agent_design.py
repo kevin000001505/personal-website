@@ -54,7 +54,7 @@ async def ask(
     agent: Agent, prompt: str, history: list = []
 ) -> AsyncGenerator[str, None]:
     async with agent.run_stream(prompt, message_history=history) as response:
-        async for text in response.stream_output(debounce_by=0.01):
+        async for text in response.stream_text(delta=True):
             yield text
 
 
