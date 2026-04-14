@@ -41,9 +41,9 @@ def create_agent() -> Agent:
     if not AI_SERVER_API_KEY:
         raise RuntimeError("AI_SERVER_API_KEY is not configured")
 
-    client = AsyncOpenAI(base_url=AI_BASE_URL, api_key=AI_SERVER_API_KEY)
+    client = AsyncOpenAI(base_url=AI_BASE_URL)  # , api_key=AI_SERVER_API_KEY)
     model = OpenAIChatModel(
-        model_name="unsloth/gemma-4-E2B-it-GGUF",
+        model_name="gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS",
         provider=OpenAIProvider(openai_client=client),
     )
     return Agent(
