@@ -38,10 +38,8 @@ AI_BASE_URL = _resolve_base_url()
 def create_agent() -> Agent:
     if not AI_BASE_URL:
         raise RuntimeError("AI_BASE_URL (or AI_SERVER_URL) is not configured")
-    if not AI_SERVER_API_KEY:
-        raise RuntimeError("AI_SERVER_API_KEY is not configured")
 
-    client = AsyncOpenAI(base_url=AI_BASE_URL)  # , api_key=AI_SERVER_API_KEY)
+    client = AsyncOpenAI(base_url=AI_BASE_URL, api_key=AI_SERVER_API_KEY or "no-key")
     model = OpenAIChatModel(
         model_name="gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS",
         provider=OpenAIProvider(openai_client=client),
