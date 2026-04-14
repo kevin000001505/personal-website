@@ -41,7 +41,7 @@ def create_agent() -> Agent:
 
     client = AsyncOpenAI(base_url=AI_BASE_URL, api_key=AI_SERVER_API_KEY or "no-key")
     model = OpenAIChatModel(
-        model_name="gemma-4-26B-A4B-it-GGUF-UD-IQ4_XS",
+        model_name="gemma-4-E2B-it-GGUF-UD-Q4_K_XL",
         provider=OpenAIProvider(openai_client=client),
     )
     return Agent(
@@ -67,9 +67,9 @@ if __name__ == "__main__":
     async def main():
         test_questions = [
             "Who is Kevin?",
-            "What are Kevin's main skills?",
-            "Tell me about Kevin's capstone project.",
-            "How can I contact Kevin?",
+            # "What are Kevin's main skills?",
+            # "Tell me about Kevin's capstone project.",
+            # "How can I contact Kevin?",
         ]
 
         for question in test_questions:
