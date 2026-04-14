@@ -41,7 +41,7 @@ def create_agent() -> Agent:
 
     client = AsyncOpenAI(base_url=AI_BASE_URL, api_key=AI_SERVER_API_KEY or "no-key")
     model = OpenAIChatModel(
-        model_name="gemma-4-E2B-it-GGUF-UD-Q4_K_XL",
+        model_name="gemma-4-E2B-it-GGUF-UD-Q8_K_XL",
         provider=OpenAIProvider(openai_client=client),
     )
     return Agent(
