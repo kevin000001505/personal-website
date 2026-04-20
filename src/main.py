@@ -368,11 +368,8 @@ def _notify_analytics(page: str, duration_s: int, max_scroll_pct: int) -> None:
                 )
         import asyncio
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                asyncio.ensure_future(_post())
-            else:
-                loop.run_until_complete(_post())
+            asyncio.get_running_loop()
+            asyncio.create_task(_post())
         except RuntimeError:
             asyncio.run(_post())
     except Exception:
