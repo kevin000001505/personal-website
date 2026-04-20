@@ -352,7 +352,7 @@ def _append_analytics_record(record: dict) -> None:
 
 
 def _notify_analytics(
-    duration_s: int, max_scroll_pct: int, client_ip: str = ""
+    page: str, duration_s: int, max_scroll_pct: int, client_ip: str = ""
 ) -> None:
     if not NTFY_ANALYTICS_URL:
         return
