@@ -29,10 +29,13 @@ services:
       - AI_BASE_URL=${AI_BASE_URL}
       - LOGFIRE_TOKEN=${LOGFIRE_TOKEN}
       - NTFY_TOPIC=${NTFY_TOPIC}
+      - ANALYTICS_FILE=/data/analytics.jsonl
     ports:
       - "8000:8000"
     networks:
       - app-net
+    volumes:
+      - analytics_data:/data
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
       interval: 30s
@@ -50,6 +53,9 @@ services:
     command: -config.file=/etc/promtail/config.yml -config.expand-env=true
 
       
+volumes:
+  analytics_data:
+
 networks:
   app-net:
     driver: bridge

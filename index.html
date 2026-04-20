@@ -2240,5 +2240,52 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
 
 })();
 </script>
+<!-- ═══════════════════════════════════════════
+     VISITOR ANALYTICS
+     ═══════════════════════════════════════════ -->
+<script>
+(function () {
+  var startTime = Date.now();
+  var milestones = new Set();
+  var maxScroll = 0;
+  function getScrollPct() {
+    var scrolled = window.scrollY + window.innerHeight;
+    var total = document.documentElement.scrollHeight;
+    if (total <= 0) return 0;
+    return Math.round((scrolled / total) * 100);
+  }
+  window.addEventListener("scroll", function () {
+    var pct = getScrollPct();
+    if (pct > maxScroll) maxScroll = pct;
+    [25, 50, 75, 100].forEach(function (m) {
+      if (pct >= m) milestones.add(m);
+    });
+  }, { passive: true });
+  function send() {
+    var payload = JSON.stringify({
+      page: location.pathname,
+      duration_s: Math.round((Date.now() - startTime) / 1000),
+      max_scroll_pct: maxScroll,
+      milestones: Array.from(milestones),
+      referrer: document.referrer,
+      user_agent: navigator.userAgent
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(
+        "/api/analytics",
+        new Blob([payload], { type: "application/json" })
+      );
+    } else {
+      fetch("/api/analytics", { method: "POST", body: payload, keepalive: true }).catch(function(){});
+    }
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") send();
+  });
+  window.addEventListener("pageunload", function () {
+    send();
+  });
+})();
+</script>
 </body>
 </html>

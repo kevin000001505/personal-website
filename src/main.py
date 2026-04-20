@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from agent_design import create_agent
@@ -312,29 +312,124 @@ async def visitor_ping(request: Request):
     ip = getattr(request.state, "client_ip", _get_client_ip(request))
     ref = request.headers.get("referer", "direct")
 
-    if not NTFY_ENDPOINT:
-        _log_event(
-            "visitor_ping_notify_skipped",
-            reason="ntfy_not_configured",
-            client_ip=ip,
-            ref=_truncate(ref, 200),
-        )
-        return {"ok": True}
-
-    try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            await client.post(
-                NTFY_ENDPOINT,
-                content=f"IP: {ip}\nRef: {ref}",
-                # HTTP headers must be ASCII; keep title plain text.
-                headers={"Title": "Visitor", "Priority": "min"},
+    if NTFY_ENDPOINT:
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                await client.post(
+                    NTFY_ENDPOINT,
+                    content=f"IP: {ip}\nRef: {ref}",
+                    headers={"Title": "Visitor", "Priority": "min"},
+                )
+        except (httpx.HTTPError, httpx.InvalidURL) as exc:
+            _log_event(
+                "visitor_ping_notify_failed",
+                client_ip=ip,
+                ref=_truncate(ref, 200),
+                endpoint=_truncate(NTFY_ENDPOINT, 200),
+                error=str(exc),
             )
-    except (httpx.HTTPError, httpx.InvalidURL) as exc:
+    return {"ok": True}
+
+
+# ── Visitor Analytics ──
+
+ANALYTICS_FILE = os.getenv("ANALYTICS_FILE", "/data/analytics.jsonl")
+NTFY_ANALYTICS_URL = NTFY_ENDPOINT
+
+
+def _append_analytics_record(record: dict) -> None:
+    try:
+        dir_path = os.path.dirname(ANALYTICS_FILE)
+        if dir_path:
+            os.makedirs(dir_path, exist_ok=True)
+        with open(ANALYTICS_FILE, "a") as f:
+            f.write(json.dumps(record, ensure_ascii=True, default=str) + "\n")
+    except Exception as exc:
         _log_event(
-            "visitor_ping_notify_failed",
-            client_ip=ip,
-            ref=_truncate(ref, 200),
-            endpoint=_truncate(NTFY_ENDPOINT, 200),
+            "analytics_write_failed",
             error=str(exc),
         )
+
+
+def _notify_analytics(page: str, duration_s: int, max_scroll_pct: int) -> None:
+    if not NTFY_ANALYTICS_URL:
+        return
+    try:
+        async def _post():
+            async with httpx.AsyncClient(timeout=3) as client:
+                await client.post(
+                    NTFY_ANALYTICS_URL,
+                    content=(
+                        f"Visitor on {page} | "
+                        f"{duration_s}s | "
+                        f"Scrolled {max_scroll_pct}%"
+                    ),
+                    headers={"Title": "Portfolio Visit", "Priority": "min"},
+                )
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.ensure_future(_post())
+            else:
+                loop.run_until_complete(_post())
+        except RuntimeError:
+            asyncio.run(_post())
+    except Exception:
+        pass
+
+
+@app.post("/api/analytics")
+async def track_analytics(request: Request):
+    try:
+        body = await request.json()
+    except json.JSONDecodeError:
+        return {"ok": False}
+
+    page = body.get("page", "/")
+    duration_s = body.get("duration_s", 0)
+    max_scroll_pct = body.get("max_scroll_pct", 0)
+    milestones = body.get("milestones", [])
+    referrer = body.get("referrer", "")
+    user_agent = body.get("user_agent", "")
+
+    record = {
+        "page": page,
+        "duration_s": duration_s,
+        "max_scroll_pct": max_scroll_pct,
+        "milestones": milestones,
+        "referrer": referrer,
+        "user_agent": user_agent,
+        "timestamp": _utc_now_iso(),
+    }
+
+    _append_analytics_record(record)
+    _notify_analytics(page, duration_s, max_scroll_pct)
+
     return {"ok": True}
+
+
+@app.get("/api/analytics/summary")
+async def analytics_summary():
+    if not ANALYTICS_FILE or not os.path.exists(ANALYTICS_FILE):
+        return {"visits": 0}
+    try:
+        with open(ANALYTICS_FILE) as f:
+            records = [json.loads(line) for line in f if line.strip()]
+    except (json.JSONDecodeError, OSError):
+        return {"visits": 0}
+
+    if not records:
+        return {"visits": 0}
+
+    total_duration = sum(r.get("duration_s", 0) for r in records)
+    total_scroll = sum(r.get("max_scroll_pct", 0) for r in records)
+    avg_duration = round(total_duration / len(records))
+    avg_scroll = round(total_scroll / len(records))
+
+    return {
+        "visits": len(records),
+        "avg_duration_s": avg_duration,
+        "avg_scroll_pct": avg_scroll,
+        "latest": records[-1].get("timestamp", ""),
+    }
