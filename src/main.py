@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 
-from fastapi import FastAPI, HTTPException, Request, Query
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from agent_design import create_agent
@@ -355,6 +355,7 @@ def _notify_analytics(page: str, duration_s: int, max_scroll_pct: int) -> None:
     if not NTFY_ANALYTICS_URL:
         return
     try:
+
         async def _post():
             async with httpx.AsyncClient(timeout=3) as client:
                 await client.post(
@@ -366,7 +367,9 @@ def _notify_analytics(page: str, duration_s: int, max_scroll_pct: int) -> None:
                     ),
                     headers={"Title": "Portfolio Visit", "Priority": "min"},
                 )
+
         import asyncio
+
         try:
             asyncio.get_running_loop()
             asyncio.create_task(_post())
