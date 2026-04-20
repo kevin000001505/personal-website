@@ -351,25 +351,23 @@ def _append_analytics_record(record: dict) -> None:
         )
 
 
-def _notify_analytics(page: str, duration_s: int, max_scroll_pct: int) -> None:
+def _notify_analytics(page: str, duration_s: int, max_scroll_pct: int, client_ip: str = "") -> None:
     if not NTFY_ANALYTICS_URL:
         return
     try:
-
         async def _post():
             async with httpx.AsyncClient(timeout=3) as client:
                 await client.post(
                     NTFY_ANALYTICS_URL,
                     content=(
                         f"Visitor on {page} | "
+                        f"IP: {client_ip} | "
                         f"{duration_s}s | "
                         f"Scrolled {max_scroll_pct}%"
                     ),
                     headers={"Title": "Portfolio Visit", "Priority": "min"},
                 )
-
         import asyncio
-
         try:
             asyncio.get_running_loop()
             asyncio.create_task(_post())
@@ -403,8 +401,9 @@ async def track_analytics(request: Request):
         "timestamp": _utc_now_iso(),
     }
 
+    ip = _get_client_ip(request)
     _append_analytics_record(record)
-    _notify_analytics(page, duration_s, max_scroll_pct)
+    _notify_analytics(page, duration_s, max_scroll_pct, ip)
 
     return {"ok": True}
 
