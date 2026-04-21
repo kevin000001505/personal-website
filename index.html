@@ -377,6 +377,268 @@
     font-size: 0.8rem;
   }
 
+  /* ═══════════════════════════════════════════
+     FEATURED CAPSTONE — DEDICATED SHOWCASE
+     ═══════════════════════════════════════════ */
+  #capstone {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+
+  .capstone-hero {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(122,79,45,0.08);
+  }
+  .capstone-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--orange), var(--purple));
+  }
+  .capstone-hero::after {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(184,92,34,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .capstone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+  .capstone-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .capstone-title .icon {
+    font-size: 1.6rem;
+  }
+  .capstone-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+  }
+  .capstone-badge {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 12px;
+    background: rgba(184,92,34,0.1);
+    color: var(--orange);
+    border: 1px solid rgba(184,92,34,0.25);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .capstone-date {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+  .capstone-sub {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+    position: relative;
+    z-index: 1;
+  }
+  .capstone-desc {
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.8;
+    max-width: 780px;
+    margin-bottom: 1.75rem;
+    position: relative;
+    z-index: 1;
+  }
+  .capstone-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Metric Tiles ── */
+  .capstone-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .metric-tile {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem 1.25rem;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(122,79,45,0.05);
+  }
+  .metric-tile:hover {
+    border-color: var(--border-glow);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(122,79,45,0.1);
+  }
+  .metric-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.6;
+  }
+  .metric-tile.orange::before { background: var(--orange); }
+  .metric-tile.purple::before { background: var(--purple); }
+  .metric-tile.blue::before { background: var(--blue); }
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 0.35rem;
+  }
+  .metric-label {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.45;
+  }
+
+  /* ── Engineering Pillars ── */
+  .capstone-pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .pillar-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    transition: all 0.4s;
+    box-shadow: 0 2px 10px rgba(122,79,45,0.05);
+    position: relative;
+  }
+  .pillar-card:hover {
+    border-color: var(--border-glow);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(122,79,45,0.08);
+  }
+  .pillar-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  .pillar-icon {
+    font-size: 1.3rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: rgba(122,79,45,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .pillar-name {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -0.2px;
+  }
+  .pillar-points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .pillar-points li {
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.55;
+    padding-left: 1.1rem;
+    position: relative;
+  }
+  .pillar-points li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    top: 1px;
+    color: var(--accent);
+    font-size: 0.75rem;
+  }
+  .pillar-points strong {
+    color: var(--text-bright);
+    font-weight: 600;
+  }
+
+  /* ── Capstone Tech Stack ── */
+  .capstone-stack-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    box-shadow: 0 2px 10px rgba(122,79,45,0.05);
+  }
+  .capstone-stack-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .capstone-stack-label::before {
+    content: '';
+    width: 14px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .capstone-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .capstone-stack .tag { font-size: 0.72rem; padding: 0.3rem 0.7rem; }
+
   /* ── PROJECTS ── */
   .projects-grid {
     display: grid;
@@ -672,6 +934,10 @@
     .projects-grid { grid-template-columns: 1fr; }
     .status-bar { gap: 1rem; }
     .hero-name { letter-spacing: -1px; }
+    .capstone-hero { padding: 1.75rem 1.5rem; }
+    .capstone-title { font-size: 1.4rem; }
+    .capstone-meta { align-items: flex-start; }
+    .metric-value { font-size: 1.45rem; }
   }
 
   /* ═══════════════════════════════════════════
@@ -1213,6 +1479,7 @@
   <ul class="nav-links" id="navLinks">
     <li><a href="#about">about</a></li>
     <li><a href="#experience">experience</a></li>
+    <li><a href="#capstone">capstone</a></li>
     <li><a href="#projects">projects</a></li>
     <li><a href="#skills">skills</a></li>
     <li><a href="#homelab">homelab</a></li>
@@ -1282,7 +1549,6 @@
       <li>Reduced customer support workload by 75% by deploying RAG-based chatbot with semantic search — 4 hours daily down to 1</li>
       <li>Decreased LLM API costs by 10% and improved latency via Redis caching for query deduplication and Qdrant vector DB for high-speed retrieval</li>
       <li>Built real-time monitoring dashboard with Logfire to track token usage, API costs, and consumption patterns</li>
-      <li>Set up n8n automation platform with workflows for automated social media content generation and publishing</li>
     </ul>
   </div>
   <div class="exp-item reveal">
@@ -1300,21 +1566,165 @@
   </div>
 </section>
 
-<!-- Projects -->
+<!-- ═══════════════════════════════════════════
+     FEATURED CAPSTONE — dedicated DE showcase
+     ═══════════════════════════════════════════ -->
+<section id="capstone">
+  <div class="reveal">
+    <p class="section-label">Featured Capstone</p>
+    <h2 class="section-title">Production Data Engineering at Scale</h2>
+  </div>
+
+  <!-- Hero card -->
+  <div class="capstone-hero reveal">
+    <div class="capstone-header">
+      <div class="capstone-title">
+        <span class="icon">🛰️</span>
+        Space Weather Aviation Risk Platform
+      </div>
+      <div class="capstone-meta">
+        <span class="capstone-badge">GMU DAEN Capstone</span>
+        <span class="capstone-date">Jan 2026 — May 2026</span>
+      </div>
+    </div>
+    <div class="capstone-sub">End-to-end data platform · PostgreSQL + TimescaleDB · Prefect · FastAPI + SSE · Redis · Docker · GitHub Actions CI/CD</div>
+    <p class="capstone-desc">
+      A production-grade platform that ingests space weather telemetry from NOAA (X-ray flux, proton flux, Kp index,
+      D-RAP, geoelectric fields) and real-time flight state vectors from OpenSky to assess aviation risk in real time.
+      Built the full stack myself — ingestion, storage, query API, caching, real-time delivery, CI/CD — with an
+      emphasis on the kind of engineering decisions that hold up in production: schema migrations without downtime,
+      query plans that actually hit indexes, and pipelines that recover from their own failures.
+    </p>
+    <div class="capstone-actions">
+      <a href="https://github.com/kevin000001505/Capstone.git" target="_blank" rel="noopener" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+  </div>
+
+  <!-- Metric tiles -->
+  <div class="capstone-metrics">
+    <div class="metric-tile reveal">
+      <div class="metric-value">150 GB/mo</div>
+      <div class="metric-label">Telemetry throughput across NOAA &amp; OpenSky feeds</div>
+    </div>
+    <div class="metric-tile orange reveal">
+      <div class="metric-value">70%</div>
+      <div class="metric-label">Storage reduction via TimescaleDB hypertable compression — zero data loss</div>
+    </div>
+    <div class="metric-tile purple reveal">
+      <div class="metric-value">80%</div>
+      <div class="metric-label">Faster API responses after Redis caching layer on hot endpoints</div>
+    </div>
+    <div class="metric-tile blue reveal">
+      <div class="metric-value">40%</div>
+      <div class="metric-label">Query performance gain from PostgreSQL tuning &amp; indexing strategy</div>
+    </div>
+    <div class="metric-tile reveal">
+      <div class="metric-value">10×–15×</div>
+      <div class="metric-label">Ingestion throughput boost: COPY-based bulk loads vs. executemany</div>
+    </div>
+    <div class="metric-tile orange reveal">
+      <div class="metric-value">99%</div>
+      <div class="metric-label">Data integrity across 5 GB/day with Prefect retry &amp; failover</div>
+    </div>
+    <div class="metric-tile purple reveal">
+      <div class="metric-value">0</div>
+      <div class="metric-label">Production crashes since CI/CD + pytest adoption with branch protection</div>
+    </div>
+    <div class="metric-tile blue reveal">
+      <div class="metric-value">10+</div>
+      <div class="metric-label">Concurrent Prefect flows orchestrating multi-source ingestion</div>
+    </div>
+  </div>
+
+  <!-- Engineering pillars -->
+  <div class="capstone-pillars">
+
+    <div class="pillar-card reveal">
+      <div class="pillar-head">
+        <div class="pillar-icon">🛠️</div>
+        <div class="pillar-name">Ingestion &amp; Orchestration</div>
+      </div>
+      <ul class="pillar-points">
+        <li>Built <strong>10+ concurrent Prefect flows</strong> ingesting NOAA SWPC feeds and OpenSky state vectors with automated retry, failover, and proactive policies for stuck runs.</li>
+        <li>Replaced <code>executemany</code> with <strong>COPY-based bulk ingestion</strong> on staging tables — <strong>10–15× throughput</strong> on high-volume geospatial writes.</li>
+        <li>Maintained <strong>99% data integrity</strong> across 5 GB/day of multi-source telemetry with schema validation and idempotent upserts.</li>
+      </ul>
+    </div>
+
+    <div class="pillar-card reveal">
+      <div class="pillar-head">
+        <div class="pillar-icon">🗄️</div>
+        <div class="pillar-name">Storage &amp; Query Performance</div>
+      </div>
+      <ul class="pillar-points">
+        <li>Migrated production PostgreSQL → <strong>TimescaleDB</strong> without downtime — hypertable compression cut storage <strong>70%</strong> while preserving full SQL compatibility.</li>
+        <li>Tuned <code>shared_buffers</code>, <code>work_mem</code>, WAL &amp; checkpoint behavior + rebuilt index strategy (<strong>chunk-aware, partial, functional</strong>) for <strong>40% query gains</strong>.</li>
+        <li>Designed <strong>PostGIS</strong> flight-path pipeline with lateral joins, GiST indexes, and partition pruning for sub-second spatial queries.</li>
+      </ul>
+    </div>
+
+    <div class="pillar-card reveal">
+      <div class="pillar-head">
+        <div class="pillar-icon">⚡</div>
+        <div class="pillar-name">Real-Time Delivery</div>
+      </div>
+      <ul class="pillar-points">
+        <li>Engineered <strong>FastAPI + asyncpg</strong> backend with non-blocking DB access and Pydantic v2 response models for high concurrency.</li>
+        <li>Delivered instant frontend updates via <strong>Server-Sent Events (SSE)</strong> — replaced client-side polling with a server-push architecture.</li>
+        <li>Added a <strong>Redis caching layer</strong> on hot endpoints, cutting API response times <strong>80%</strong> by eliminating redundant DB hits.</li>
+        <li>Moved alerting logic into <strong>PostgreSQL stored procedures &amp; views</strong> for <strong>70% lower alert latency</strong> (0.1 ms → 0.03 ms).</li>
+      </ul>
+    </div>
+
+    <div class="pillar-card reveal">
+      <div class="pillar-head">
+        <div class="pillar-icon">🧪</div>
+        <div class="pillar-name">Reliability &amp; CI/CD</div>
+      </div>
+      <ul class="pillar-points">
+        <li>Built a <strong>GitHub Actions CI/CD pipeline</strong> running pytest on every PR, enforced via branch protection — <strong>zero production crashes</strong> since adoption.</li>
+        <li>Comprehensive <strong>pytest coverage</strong> for ingestion, transformation, and all API endpoints — every code change verified before merge.</li>
+        <li>Ran a <strong>self-hosted GitHub Actions runner</strong> inside the project VM, tightening feedback loop and keeping secrets off shared infra.</li>
+        <li>Containerized the entire stack with <strong>Docker Compose</strong> — reproducible dev, staging, and prod environments from a single manifest.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Tech stack chip cloud -->
+  <div class="capstone-stack-wrap reveal" style="margin-top: 1.75rem;">
+    <div class="capstone-stack-label">Tech Stack</div>
+    <div class="capstone-stack">
+      <span class="tag">PostgreSQL</span>
+      <span class="tag">TimescaleDB</span>
+      <span class="tag">PostGIS</span>
+      <span class="tag blue">asyncpg</span>
+      <span class="tag blue">FastAPI</span>
+      <span class="tag blue">SSE</span>
+      <span class="tag blue">Redis</span>
+      <span class="tag purple">Prefect</span>
+      <span class="tag purple">Pydantic v2</span>
+      <span class="tag orange">Docker Compose</span>
+      <span class="tag">GitHub Actions</span>
+      <span class="tag">pytest</span>
+      <span class="tag orange">Self-hosted runner</span>
+      <span class="tag">NOAA SWPC</span>
+      <span class="tag">OpenSky</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- Other Projects -->
 <section id="projects">
   <div class="reveal">
     <p class="section-label">Projects</p>
-    <h2 class="section-title">What I've Built</h2>
+    <h2 class="section-title">Other Things I've Built</h2>
   </div>
   <div class="projects-grid">
-    <a class="project-card reveal" href="https://github.com/kevin000001505/Capstone.git" target="_blank" rel="noopener">
-      <div class="project-icon">🛰️</div>
-      <div class="project-name">Space Weather Dashboard</div>
-      <div class="project-desc">Production data platform processing 150GB/month of space weather telemetry. 70% storage reduction via PostgreSQL partitioning. 50% faster API responses with Redis. Real-time SSE delivery, Prefect orchestration, full CI/CD pipeline with zero production crashes.</div>
-      <div class="project-tags">
-        <span class="tag">PostgreSQL</span><span class="tag">PostGIS</span><span class="tag blue">FastAPI</span><span class="tag blue">Redis</span><span class="tag purple">Prefect</span><span class="tag orange">Docker</span><span class="tag">GitHub Actions</span>
-      </div>
-    </a>
     <a class="project-card reveal" href="https://github.com/kevin000001505/meta-rag.git" target="_blank" rel="noopener">
       <div class="project-icon">🧠</div>
       <div class="project-name">Multimodal RAG Optimization</div>
@@ -1367,7 +1777,7 @@
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-name">Data Engineering</div>
-      <div class="skill-tags"><span class="skill-tag">PySpark</span><span class="skill-tag">Prefect</span><span class="skill-tag">PostgreSQL</span><span class="skill-tag">PostGIS</span><span class="skill-tag">Redis</span><span class="skill-tag">asyncpg</span><span class="skill-tag">ETL Pipelines</span><span class="skill-tag">Pandas</span><span class="skill-tag">SSE</span><span class="skill-tag">Scrapy</span></div>
+      <div class="skill-tags"><span class="skill-tag">PySpark</span><span class="skill-tag">Prefect</span><span class="skill-tag">PostgreSQL</span><span class="skill-tag">TimescaleDB</span><span class="skill-tag">PostGIS</span><span class="skill-tag">Redis</span><span class="skill-tag">asyncpg</span><span class="skill-tag">ETL Pipelines</span><span class="skill-tag">Pandas</span><span class="skill-tag">SSE</span><span class="skill-tag">Scrapy</span></div>
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-name">Cloud & DevOps</div>
@@ -1375,7 +1785,7 @@
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-name">Databases</div>
-      <div class="skill-tags"><span class="skill-tag">PostgreSQL</span><span class="skill-tag">Redis</span><span class="skill-tag">Qdrant</span><span class="skill-tag">Elasticsearch</span><span class="skill-tag">Firebase</span><span class="skill-tag">SQLite</span></div>
+      <div class="skill-tags"><span class="skill-tag">PostgreSQL</span><span class="skill-tag">TimescaleDB</span><span class="skill-tag">Redis</span><span class="skill-tag">Qdrant</span><span class="skill-tag">Elasticsearch</span><span class="skill-tag">Firebase</span><span class="skill-tag">SQLite</span></div>
     </div>
     <div class="skill-category reveal">
       <div class="skill-cat-name">Visualization</div>
@@ -1745,7 +2155,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
   // ── Quick reply suggestions ──
   const defaultQuickReplies = [
     "What does Kevin do?",
-    "Tell me about his projects",
+    "Tell me about his capstone",
     "What's his tech stack?",
     "What is his homelab?",
   ];
