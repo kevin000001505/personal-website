@@ -327,6 +327,144 @@
   }
   .status-dot.orange { background: var(--orange); }
 
+  /* ── HERO CHAT INPUT ── */
+  .hero-ask {
+    margin-top: 1.75rem;
+    max-width: 560px;
+    opacity: 0;
+    animation: fadeUp 0.8s 1.5s forwards;
+  }
+  .hero-ask-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .hero-ask-label::before {
+    content: '';
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .hero-ask-form {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.5rem 0.5rem 0.5rem 1.1rem;
+    box-shadow: 0 2px 10px rgba(122,79,45,0.06);
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+  }
+  .hero-ask-form:focus-within {
+    border-color: var(--accent);
+    background: var(--bg-card-hover);
+    box-shadow: 0 4px 18px rgba(122,79,45,0.12);
+  }
+  .hero-ask-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--text);
+    outline: none;
+    padding: 0.45rem 0;
+    min-width: 0;
+  }
+  .hero-ask-input::placeholder {
+    color: var(--text-dim);
+  }
+  .hero-ask-btn {
+    flex-shrink: 0;
+    background: var(--accent);
+    color: #faf6ee;
+    border: none;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .hero-ask-btn:hover {
+    background: var(--accent-bright);
+    transform: translateX(2px);
+  }
+  .hero-ask-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .hero-ask-btn svg { width: 16px; height: 16px; }
+  .hero-ask-hint {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 0.5rem;
+    letter-spacing: 0.3px;
+  }
+  .hero-ask-hint kbd {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: rgba(122,79,45,0.08);
+    border: 1px solid var(--border);
+    color: var(--accent);
+  }
+  .hero-ask-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+  .hero-ask-chip {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 18px;
+    background: rgba(122,79,45,0.05);
+    color: var(--text);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .hero-ask-chip::before {
+    content: '→';
+    color: var(--accent);
+    font-size: 0.75rem;
+    opacity: 0.6;
+    transition: transform 0.25s, opacity 0.25s;
+  }
+  .hero-ask-chip:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(122,79,45,0.08);
+  }
+  .hero-ask-chip:hover::before {
+    transform: translateX(2px);
+    opacity: 1;
+  }
+  .hero-ask-chip:active {
+    transform: translateY(0);
+  }
+
   /* ── EXPERIENCE ── */
   .exp-item {
     padding: 2rem;
@@ -1519,6 +1657,32 @@
         <div class="status-item"><div class="status-dot orange"></div>Fairfax, VA</div>
         <div class="status-item"><div class="status-dot"></div>Self-hosted everything</div>
       </div>
+
+      <div class="hero-ask">
+        <div class="hero-ask-label">Ask about Kevin</div>
+        <div class="hero-ask-form">
+          <input
+            type="text"
+            class="hero-ask-input"
+            id="heroAskInput"
+            placeholder="What's Kevin's capstone project about?"
+            autocomplete="off"
+            aria-label="Ask a question about Kevin"
+          >
+          <button class="hero-ask-btn" id="heroAskBtn" aria-label="Send question">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="hero-ask-hint">Press <kbd>Enter</kbd> to ask — opens chat with Kermit 🐸</div>
+        <div class="hero-ask-chips" id="heroAskChips">
+          <button class="hero-ask-chip" data-q="Tell me about Kevin's space weather capstone project.">Capstone project</button>
+          <button class="hero-ask-chip" data-q="What's running on Kevin's homelab?">Homelab stack</button>
+          <button class="hero-ask-chip" data-q="What kind of roles is Kevin looking for?">Roles he's open to</button>
+          <button class="hero-ask-chip" data-q="What ML and AI work has Kevin done?">ML &amp; AI work</button>
+        </div>
+      </div>
     </div>
 
     <div class="hero-photo-col">
@@ -1545,10 +1709,9 @@
       <div class="exp-date">Jul 2025 — Dec 2025</div>
     </div>
     <ul class="exp-bullets">
-      <li>Saved $12,000/year by developing custom OCR model (CRNN) achieving 96% accuracy on high-complexity CAPTCHAs, eliminating third-party API dependency</li>
+      <li>Saved $4,000/year by developing custom OCR model (CRNN) achieving 96% accuracy on high-complexity CAPTCHAs, eliminating third-party API dependency</li>
       <li>Reduced customer support workload by 75% by deploying RAG-based chatbot with semantic search — 4 hours daily down to 1</li>
       <li>Decreased LLM API costs by 10% and improved latency via Redis caching for query deduplication and Qdrant vector DB for high-speed retrieval</li>
-      <li>Built real-time monitoring dashboard with Logfire to track token usage, API costs, and consumption patterns</li>
     </ul>
   </div>
   <div class="exp-item reveal">
@@ -1584,7 +1747,7 @@
       </div>
       <div class="capstone-meta">
         <span class="capstone-badge">GMU DAEN Capstone</span>
-        <span class="capstone-date">Jan 2026 — May 2026</span>
+        <span class="capstone-date">Aug 2025 — May 2026</span>
       </div>
     </div>
     <div class="capstone-sub">End-to-end data platform · PostgreSQL + TimescaleDB · Prefect · FastAPI + SSE · Redis · Docker · GitHub Actions CI/CD</div>
@@ -1634,7 +1797,7 @@
       <div class="metric-label">Production crashes since CI/CD + pytest adoption with branch protection</div>
     </div>
     <div class="metric-tile blue reveal">
-      <div class="metric-value">10+</div>
+      <div class="metric-value">20+</div>
       <div class="metric-label">Concurrent Prefect flows orchestrating multi-source ingestion</div>
     </div>
   </div>
@@ -1648,7 +1811,7 @@
         <div class="pillar-name">Ingestion &amp; Orchestration</div>
       </div>
       <ul class="pillar-points">
-        <li>Built <strong>10+ concurrent Prefect flows</strong> ingesting NOAA SWPC feeds and OpenSky state vectors with automated retry, failover, and proactive policies for stuck runs.</li>
+        <li>Built <strong>20+ concurrent Prefect flows</strong> ingesting NOAA SWPC feeds and OpenSky state vectors with automated retry, failover, and proactive policies for stuck runs.</li>
         <li>Replaced <code>executemany</code> with <strong>COPY-based bulk ingestion</strong> on staging tables — <strong>10–15× throughput</strong> on high-volume geospatial writes.</li>
         <li>Maintained <strong>99% data integrity</strong> across 5 GB/day of multi-source telemetry with schema validation and idempotent upserts.</li>
       </ul>
@@ -1836,7 +1999,7 @@
   <p class="homelab-subsection-label reveal">Running Services</p>
   <div class="services-grid">
     <div class="service-chip reveal"><div class="svc-dot"></div><div class="svc-info"><div class="svc-name">Plex</div><div class="svc-role">Media Server</div></div></div>
-    <div class="service-chip reveal"><div class="svc-dot"></div><div class="svc-info"><div class="svc-name">Jellyfin</div><div class="svc-role">Media Server</div></div></div>
+    <div class="service-chip reveal"><div class="svc-dot"></div><div class="svc-info"><div class="svc-name">NPMPlus</div><div class="svc-role">Network Management</div></div></div>
     <div class="service-chip reveal"><div class="svc-dot blue"></div><div class="svc-info"><div class="svc-name">Immich</div><div class="svc-role">Photo Management</div></div></div>
     <div class="service-chip reveal"><div class="svc-dot purple"></div><div class="svc-info"><div class="svc-name">Komodo</div><div class="svc-role">Docker Stack Mgmt</div></div></div>
     <div class="service-chip reveal"><div class="svc-dot orange"></div><div class="svc-info"><div class="svc-name">Grafana</div><div class="svc-role">Monitoring Dashboard</div></div></div>
@@ -2646,8 +2809,64 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     }, 4000);
   }
 
+  // ── Public API: let external entry points (like the hero input) trigger Kermit ──
+  // This opens the chat, suppresses the default greeting so the user's own message
+  // leads the conversation, and sends the message through the normal pipeline.
+  window.kermitOpenAndAsk = function(message) {
+    if (!message || !message.trim()) { openChat(); return; }
+    // Suppress the first-open greeting so the conversation starts with the user's question
+    isFirstOpen = false;
+    openChat();
+    // Give the open transition a tick to start before firing the message
+    setTimeout(() => { sendMessage(message.trim()); }, 120);
+  };
+
   startEscalation();
 
+})();
+
+// ═══════════════════════════════════════════════
+// HERO INPUT → KERMIT BRIDGE
+// ═══════════════════════════════════════════════
+(function() {
+  'use strict';
+  const heroInput = document.getElementById('heroAskInput');
+  const heroBtn = document.getElementById('heroAskBtn');
+  if (!heroInput || !heroBtn) return;
+
+  function submit() {
+    const msg = heroInput.value.trim();
+    if (!msg) {
+      // Empty submit just opens Kermit
+      if (typeof window.kermitOpenAndAsk === 'function') window.kermitOpenAndAsk('');
+      return;
+    }
+    if (typeof window.kermitOpenAndAsk === 'function') {
+      window.kermitOpenAndAsk(msg);
+      heroInput.value = '';
+    }
+  }
+
+  heroBtn.addEventListener('click', submit);
+  heroInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submit();
+    }
+  });
+
+  // Quick-question chips: click fires the question straight into Kermit
+  const chipsContainer = document.getElementById('heroAskChips');
+  if (chipsContainer) {
+    chipsContainer.addEventListener('click', (e) => {
+      const chip = e.target.closest('.hero-ask-chip');
+      if (!chip) return;
+      const question = chip.dataset.q;
+      if (question && typeof window.kermitOpenAndAsk === 'function') {
+        window.kermitOpenAndAsk(question);
+      }
+    });
+  }
 })();
 </script>
 <!-- ═══════════════════════════════════════════
