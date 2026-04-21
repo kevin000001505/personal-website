@@ -2870,50 +2870,169 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
 })();
 </script>
 <!-- ═══════════════════════════════════════════
-     VISITOR ANALYTICS
+     VISITOR ANALYTICS — Enhanced
      ═══════════════════════════════════════════ -->
 <script>
 (function () {
+  var SESSION_ID = Math.random().toString(36).slice(2, 10);
   var startTime = Date.now();
-  var milestones = new Set();
   var maxScroll = 0;
+  var milestones = new Set();
+  var sectionDwells = {};  // { sectionId: total_ms }
+  var sectionTimers = {};  // { sectionId: entryTimestamp }
+  var chatOpened = false;
+  var chatMessageCount = 0;
+  var summarySent = false;
+
+  // ── Scroll tracking ──
   function getScrollPct() {
     var scrolled = window.scrollY + window.innerHeight;
     var total = document.documentElement.scrollHeight;
-    if (total <= 0) return 0;
-    return Math.round((scrolled / total) * 100);
+    return total <= 0 ? 0 : Math.round((scrolled / total) * 100);
   }
-  window.addEventListener("scroll", function () {
+  window.addEventListener('scroll', function () {
     var pct = getScrollPct();
     if (pct > maxScroll) maxScroll = pct;
-    [25, 50, 75, 100].forEach(function (m) {
-      if (pct >= m) milestones.add(m);
-    });
+    [25, 50, 75, 100].forEach(function (m) { if (pct >= m) milestones.add(m); });
   }, { passive: true });
-  function send() {
+
+  // ── Event sender (fires individual events to /api/analytics/event) ──
+  function sendEvent(event_type, data) {
+    var payload = JSON.stringify(Object.assign({
+      event_type: event_type,
+      session_id: SESSION_ID,
+      ts: new Date().toISOString()
+    }, data));
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/analytics/event', new Blob([payload], { type: 'application/json' }));
+    } else {
+      fetch('/api/analytics/event', { method: 'POST', body: payload, keepalive: true }).catch(function(){});
+    }
+  }
+
+  // ── Section dwell tracking via IntersectionObserver ──
+  if (typeof IntersectionObserver !== 'undefined') {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var id = entry.target.id;
+        if (!id) return;
+        if (entry.isIntersecting) {
+          sectionTimers[id] = Date.now();
+        } else if (sectionTimers[id]) {
+          var elapsed = Date.now() - sectionTimers[id];
+          sectionDwells[id] = (sectionDwells[id] || 0) + elapsed;
+          delete sectionTimers[id];
+          // Only emit if genuinely read (≥2s), not just scrolled past
+          if (elapsed >= 2000) {
+            sendEvent('section_dwell', { section_id: id, dwell_ms: elapsed });
+          }
+        }
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('section[id]').forEach(function (el) {
+      observer.observe(el);
+    });
+  }
+
+  // ── Link/button click tracking ──
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a[href]');
+    if (!link) return;
+    var href = link.href || '';
+    var text = (link.innerText || link.title || link.getAttribute('aria-label') || '').trim().slice(0, 60);
+    var isExternal = href.indexOf(location.origin) !== 0 && /^https?:\/\//.test(href);
+    var isKeyAction = /resume|github|linkedin|mailto:|email|cv/i.test(href + ' ' + text);
+    if (isExternal || isKeyAction) {
+      var section = link.closest('section');
+      sendEvent('link_click', {
+        href: href.slice(0, 200),
+        link_text: text,
+        section_id: section ? (section.id || '') : ''
+      });
+    }
+  });
+
+  // ── Copy tracking (email/phone copy = strong recruiter intent signal) ──
+  document.addEventListener('copy', function () {
+    var sel = window.getSelection ? window.getSelection().toString().slice(0, 100) : '';
+    sendEvent('text_copy', { selection: sel });
+  });
+
+  // ── Chat interaction tracking ──
+  var fabEl = document.getElementById('kermitFab');
+  var messagesEl = document.getElementById('kermitMessages');
+  if (fabEl) {
+    fabEl.addEventListener('click', function () {
+      if (!chatOpened) {
+        chatOpened = true;
+        sendEvent('chat_open', {
+          time_on_page_s: Math.round((Date.now() - startTime) / 1000),
+          scroll_pct: maxScroll
+        });
+        // Observe user messages sent inside chat
+        if (messagesEl && typeof MutationObserver !== 'undefined') {
+          new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
+              m.addedNodes.forEach(function (node) {
+                if (node.nodeType === 1 && node.classList.contains('user')) {
+                  chatMessageCount++;
+                  sendEvent('chat_message', {
+                    message_number: chatMessageCount,
+                    time_on_page_s: Math.round((Date.now() - startTime) / 1000)
+                  });
+                }
+              });
+            });
+          }).observe(messagesEl, { childList: true });
+        }
+      }
+    });
+  }
+
+  // ── Heartbeat every 30s (captures partial sessions on hard closes) ──
+  setInterval(function () {
+    sendEvent('heartbeat', {
+      time_on_page_s: Math.round((Date.now() - startTime) / 1000),
+      scroll_pct: maxScroll,
+      milestones: Array.from(milestones),
+      sections_active: Object.keys(sectionTimers),
+      chat_opened: chatOpened,
+      chat_messages: chatMessageCount
+    });
+  }, 30000);
+
+  // ── Final session summary on page hide ──
+  function sendSummary() {
+    if (summarySent) return;
+    summarySent = true;
+    // Flush any sections still in viewport
+    Object.keys(sectionTimers).forEach(function (id) {
+      var elapsed = Date.now() - sectionTimers[id];
+      sectionDwells[id] = (sectionDwells[id] || 0) + elapsed;
+      delete sectionTimers[id];
+    });
     var payload = JSON.stringify({
       page: location.pathname,
+      session_id: SESSION_ID,
       duration_s: Math.round((Date.now() - startTime) / 1000),
       max_scroll_pct: maxScroll,
       milestones: Array.from(milestones),
       referrer: document.referrer,
-      user_agent: navigator.userAgent
+      user_agent: navigator.userAgent,
+      section_dwells: sectionDwells,
+      chat_opened: chatOpened,
+      chat_messages: chatMessageCount
     });
     if (navigator.sendBeacon) {
-      navigator.sendBeacon(
-        "/api/analytics",
-        new Blob([payload], { type: "application/json" })
-      );
+      navigator.sendBeacon('/api/analytics', new Blob([payload], { type: 'application/json' }));
     } else {
-      fetch("/api/analytics", { method: "POST", body: payload, keepalive: true }).catch(function(){});
+      fetch('/api/analytics', { method: 'POST', body: payload, keepalive: true }).catch(function(){});
     }
   }
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "hidden") send();
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') sendSummary();
   });
-  window.addEventListener("pageunload", function () {
-    send();
-  });
+  window.addEventListener('pagehide', sendSummary);
 })();
 </script>
 </body>

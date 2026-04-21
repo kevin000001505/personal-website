@@ -392,6 +392,10 @@ async def track_analytics(request: Request):
     milestones = body.get("milestones", [])
     referrer = body.get("referrer", "")
     user_agent = body.get("user_agent", "")
+    session_id = body.get("session_id", "")
+    section_dwells = body.get("section_dwells", {})
+    chat_opened = body.get("chat_opened", False)
+    chat_messages = body.get("chat_messages", 0)
 
     record = {
         "page": page,
@@ -400,12 +404,101 @@ async def track_analytics(request: Request):
         "milestones": milestones,
         "referrer": referrer,
         "user_agent": user_agent,
+        "session_id": session_id,
+        "section_dwells": section_dwells,
+        "chat_opened": chat_opened,
+        "chat_messages": chat_messages,
         "timestamp": _utc_now_iso(),
     }
 
     ip = _get_client_ip(request)
     _append_analytics_record(record)
     _notify_analytics(page, duration_s, max_scroll_pct, ip)
+
+    _log_event(
+        "analytics_session_end",
+        session_id=session_id,
+        client_ip=ip,
+        page=page,
+        duration_s=duration_s,
+        max_scroll_pct=max_scroll_pct,
+        milestones=milestones,
+        section_dwells=section_dwells,
+        chat_opened=chat_opened,
+        chat_messages=chat_messages,
+        referrer=_truncate(referrer, 200),
+    )
+
+    return {"ok": True}
+
+
+@app.post("/api/analytics/event")
+async def track_analytics_event(request: Request):
+    try:
+        body = await request.json()
+    except json.JSONDecodeError:
+        return {"ok": False}
+
+    event_type = body.get("event_type", "unknown")
+    session_id = body.get("session_id", "")
+    client_ip = _get_client_ip(request)
+
+    base = {"session_id": session_id, "client_ip": client_ip, "event_type": event_type}
+
+    if event_type == "section_dwell":
+        _log_event(
+            "analytics_section_dwell",
+            **base,
+            section_id=body.get("section_id", ""),
+            dwell_ms=body.get("dwell_ms", 0),
+        )
+
+    elif event_type == "link_click":
+        _log_event(
+            "analytics_link_click",
+            **base,
+            href=_truncate(body.get("href", ""), 200),
+            link_text=_truncate(body.get("link_text", ""), 60),
+            section_id=body.get("section_id", ""),
+        )
+
+    elif event_type == "text_copy":
+        _log_event(
+            "analytics_text_copy",
+            **base,
+            selection=_truncate(body.get("selection", ""), 100),
+        )
+
+    elif event_type == "chat_open":
+        _log_event(
+            "analytics_chat_open",
+            **base,
+            time_on_page_s=body.get("time_on_page_s", 0),
+            scroll_pct=body.get("scroll_pct", 0),
+        )
+
+    elif event_type == "chat_message":
+        _log_event(
+            "analytics_chat_message",
+            **base,
+            message_number=body.get("message_number", 0),
+            time_on_page_s=body.get("time_on_page_s", 0),
+        )
+
+    elif event_type == "heartbeat":
+        _log_event(
+            "analytics_heartbeat",
+            **base,
+            time_on_page_s=body.get("time_on_page_s", 0),
+            scroll_pct=body.get("scroll_pct", 0),
+            milestones=body.get("milestones", []),
+            sections_active=body.get("sections_active", []),
+            chat_opened=body.get("chat_opened", False),
+            chat_messages=body.get("chat_messages", 0),
+        )
+
+    else:
+        _log_event(f"analytics_{event_type}", **base, raw=body)
 
     return {"ok": True}
 

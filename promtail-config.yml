@@ -22,27 +22,54 @@ scrape_configs:
       - source_labels: [__meta_docker_container_log_stream]
         target_label: stream
     pipeline_stages:
-      # Parse the JSON log lines
+      # Parse the JSON log lines emitted by _log_event()
       - json:
           expressions:
-            event:       event
-            request_id:  request_id
-            client_ip:   client_ip
-            path:        path
-            method:      method
-            status_code: status_code
-            duration_ms: duration_ms
-            stream_error: stream_error
-            fallback_reason: fallback_reason
+            event:               event
+            request_id:          request_id
+            client_ip:           client_ip
+            path:                path
+            method:              method
+            status_code:         status_code
+            duration_ms:         duration_ms
+            stream_error:        stream_error
+            fallback_reason:     fallback_reason
             user_prompt_preview: user_prompt_preview
             ai_response_preview: ai_response_preview
-      # Promote parsed fields to Loki labels (keep labels low-cardinality)
+            # analytics fields
+            event_type:          event_type
+            session_id:          session_id
+            section_id:          section_id
+            dwell_ms:            dwell_ms
+            href:                href
+            link_text:           link_text
+            scroll_pct:          scroll_pct
+            time_on_page_s:      time_on_page_s
+            chat_opened:         chat_opened
+            chat_messages:       chat_messages
+            message_number:      message_number
+            max_scroll_pct:      max_scroll_pct
+            duration_s:          duration_s
+            referrer:            referrer
+      # Low-cardinality fields only as Loki labels (high-cardinality goes in log line)
       - labels:
           event:
           path:
           method:
           stream_error:
           fallback_reason:
+          event_type:
+          section_id:
+      # Numeric fields as structured metadata for aggregation in Grafana
+      - structured_metadata:
+          dwell_ms:
+          scroll_pct:
+          time_on_page_s:
+          duration_ms:
+          max_scroll_pct:
+          duration_s:
+          chat_messages:
+          message_number:
       # Use the ts field from the log as the timestamp
       - timestamp:
           source: ts
