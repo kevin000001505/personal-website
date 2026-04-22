@@ -40,6 +40,7 @@ jobs:
           echo "AI_BASE_URL=${{ secrets.AI_BASE_URL }}" >> .env
           echo "LOGFIRE_TOKEN=${{ secrets.LOGFIRE_TOKEN }}" >> .env
           echo "NTFY_TOPIC=${{ secrets.NTFY_TOPIC }}" >> .env
+          echo "LOKI_URL=${{ secrets.LOKI_URL }}" >> .env
 
       - name: Build and restart services
         env:
