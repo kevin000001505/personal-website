@@ -85,3 +85,55 @@ scrape_configs:
       - timestamp:
           source: ts
           format: RFC3339Nano
+          
+  - job_name: analytics_file
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: analytics
+          container: fastapi
+          stream: analytics
+          __path__: /data/analytics/analytics.jsonl   # ← path inside Promtail container
+
+    pipeline_stages:
+      - json:
+          expressions:
+            event:               event
+            event_type:          event_type
+            session_id:          session_id
+            page:                page
+            duration_s:          duration_s
+            max_scroll_pct:      max_scroll_pct
+            milestones_raw:      milestones
+            referrer:            referrer
+            section_dwells_raw:  section_dwells
+            chat_opened:         chat_opened
+            chat_messages:       chat_messages
+            user_agent:          user_agent
+            section_id:          section_id
+            dwell_ms:            dwell_ms
+            href:                href
+            link_text:           link_text
+            scroll_pct:          scroll_pct
+            time_on_page_s:      time_on_page_s
+            message_number:      message_number
+
+      - labels:
+          event:
+          event_type:
+          page:
+          section_id:
+
+      - structured_metadata:
+          duration_s:
+          max_scroll_pct:
+          chat_messages:
+          dwell_ms:
+          scroll_pct:
+          time_on_page_s:
+          message_number:
+
+      - timestamp:
+          source: timestamp    # ← analytics.jsonl uses "timestamp" not "ts"
+          format: RFC3339Nano

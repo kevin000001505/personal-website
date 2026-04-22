@@ -46,6 +46,7 @@ services:
     volumes:
       - ./promtail-config.yml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock
+      - analytics_data:/data/analytics:ro
     networks:
       - app-net                      # ← ADD: needs a network for outbound LAN traffic
     depends_on:
