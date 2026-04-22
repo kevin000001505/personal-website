@@ -19,6 +19,8 @@ scrape_configs:
     relabel_configs:
       - source_labels: [__meta_docker_container_name]
         target_label: container
+        regex: '/?(.*)'          # ← ADD: strips the leading slash
+        replacement: '$1'
       - source_labels: [__meta_docker_container_log_stream]
         target_label: stream
     pipeline_stages:
