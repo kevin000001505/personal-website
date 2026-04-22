@@ -14,10 +14,7 @@ services:
       interval: 30s
       timeout: 3s
       retries: 3
-    # Uncomment below if you want to live-edit without rebuilding:
-    # volumes:
-    #   - ./index.html:/usr/share/nginx/html/index.html:ro
-  
+
   fastapi:
     build:
       context: .
@@ -41,18 +38,21 @@ services:
       interval: 30s
       timeout: 3s
       retries: 3
+
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
+    restart: unless-stopped          # ← ADD: auto-restart if Loki unreachable at boot
     volumes:
       - ./promtail-config.yml:/etc/promtail/config.yml
-      - /var/run/docker.sock:/var/run/docker.sock  # read Docker logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app-net                      # ← ADD: needs a network for outbound LAN traffic
     depends_on:
       - fastapi
     env_file: .env
     command: -config.file=/etc/promtail/config.yml -config.expand-env=true
 
-      
 volumes:
   analytics_data:
 

@@ -40,7 +40,6 @@ scrape_configs:
             ai_response_preview: ai_response_preview
             # analytics fields
             event_type:          event_type
-            session_id:          session_id
             section_id:          section_id
             dwell_ms:            dwell_ms
             href:                href
@@ -65,7 +64,6 @@ scrape_configs:
           path:
           method:
           status_code:      # ← ADD: enables sum by(status_code) queries
-          session_id:       # ← ADD: lets you filter a single session in Explore
           page:             # ← ADD: filter by page path
           stream_error:
           fallback_reason:
