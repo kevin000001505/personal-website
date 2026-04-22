@@ -2870,19 +2870,30 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
 })();
 </script>
 <!-- ═══════════════════════════════════════════
-     VISITOR ANALYTICS — Enhanced
+     VISITOR ANALYTICS — Enhanced (v2)
+     Tracks ONLY active (visible) time on page.
+     Tall sections register via rootMargin (not threshold).
+     Periodic section_dwell emission (10s) so data survives hard closes.
      ═══════════════════════════════════════════ -->
 <script>
 (function () {
   var SESSION_ID = Math.random().toString(36).slice(2, 10);
-  var startTime = Date.now();
+
+  // Active time accounting — only counts while tab is visible
+  var activeStart = (document.visibilityState === 'visible') ? Date.now() : null;
+  var activeAccum = 0;  // total ms of visible-time so far
+  function activeMs() {
+    return activeAccum + (activeStart ? (Date.now() - activeStart) : 0);
+  }
+  function activeSec() { return Math.round(activeMs() / 1000); }
+
   var maxScroll = 0;
   var milestones = new Set();
-  var sectionDwells = {};  // { sectionId: total_ms }
-  var sectionTimers = {};  // { sectionId: entryTimestamp }
+  var sectionDwells = {};    // { sectionId: committed_ms }
+  var sectionEntered = {};   // { sectionId: activeMs_at_entry }
+  var sectionInView = {};    // { sectionId: true } — currently intersecting
   var chatOpened = false;
   var chatMessageCount = 0;
-  var summarySent = false;
 
   // ── Scroll tracking ──
   function getScrollPct() {
@@ -2896,69 +2907,190 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     [25, 50, 75, 100].forEach(function (m) { if (pct >= m) milestones.add(m); });
   }, { passive: true });
 
-  // ── Event sender (fires individual events to /api/analytics/event) ──
+  // ── Event sender ──
   function sendEvent(event_type, data) {
     var payload = JSON.stringify(Object.assign({
       event_type: event_type,
       session_id: SESSION_ID,
       ts: new Date().toISOString()
     }, data));
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon('/api/analytics/event', new Blob([payload], { type: 'application/json' }));
-    } else {
-      fetch('/api/analytics/event', { method: 'POST', body: payload, keepalive: true }).catch(function(){});
-    }
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/analytics/event', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/api/analytics/event', { method: 'POST', body: payload, keepalive: true }).catch(function(){});
+      }
+    } catch (_) {}
   }
 
-  // ── Section dwell tracking via IntersectionObserver ──
+  // ── Section dwell tracking ──
+  // Use rootMargin instead of threshold so tall sections (taller than viewport) still register.
+  // A section is "in view" as soon as ANY part overlaps the viewport middle band.
   if (typeof IntersectionObserver !== 'undefined') {
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         var id = entry.target.id;
         if (!id) return;
         if (entry.isIntersecting) {
-          sectionTimers[id] = Date.now();
-        } else if (sectionTimers[id]) {
-          var elapsed = Date.now() - sectionTimers[id];
-          sectionDwells[id] = (sectionDwells[id] || 0) + elapsed;
-          delete sectionTimers[id];
-          // Only emit if genuinely read (≥2s), not just scrolled past
-          if (elapsed >= 2000) {
-            sendEvent('section_dwell', { section_id: id, dwell_ms: elapsed });
+          if (!sectionInView[id]) {
+            sectionInView[id] = true;
+            sectionEntered[id] = activeMs();
           }
+        } else if (sectionInView[id]) {
+          commitSection(id, /*emit*/ true);
         }
       });
-    }, { threshold: 0.4 });
+    }, {
+      // rootMargin: shrinks the viewport so a section must occupy the middle ~40% to count.
+      // Works for sections of ANY height (unlike a high threshold).
+      rootMargin: '-30% 0px -30% 0px',
+      threshold: 0
+    });
     document.querySelectorAll('section[id]').forEach(function (el) {
       observer.observe(el);
     });
   }
 
-  // ── Link/button click tracking ──
+  function commitSection(id, emit) {
+    if (!sectionInView[id]) return;
+    var start = sectionEntered[id];
+    var elapsed = activeMs() - start;
+    if (elapsed > 0) {
+      sectionDwells[id] = (sectionDwells[id] || 0) + elapsed;
+      if (emit && elapsed >= 1500) {
+        sendEvent('section_dwell', { section_id: id, dwell_ms: elapsed });
+      }
+    }
+    delete sectionInView[id];
+    delete sectionEntered[id];
+  }
+
+  // Periodic commit: emit section_dwell every 10s for currently-viewed sections,
+  // so data survives hard closes / crashes without waiting for section exit.
+  setInterval(function () {
+    if (document.visibilityState !== 'visible') return;
+    Object.keys(sectionInView).forEach(function (id) {
+      var elapsed = activeMs() - sectionEntered[id];
+      if (elapsed >= 10000) {
+        sectionDwells[id] = (sectionDwells[id] || 0) + elapsed;
+        sendEvent('section_dwell', { section_id: id, dwell_ms: elapsed, partial: true });
+        // Reset entry so we don't double-count
+        sectionEntered[id] = activeMs();
+      }
+    });
+  }, 10000);
+
+  // ── Click tracking: links, buttons, project cards, nav, hero chips ──
+  function labelFor(el) {
+    // Prefer explicit identifiers over messy textContent
+    if (el.dataset && el.dataset.q) return el.dataset.q.slice(0, 80);   // hero-ask-chip
+    var pname = el.querySelector && el.querySelector('.project-name');
+    if (pname) return (pname.textContent || '').trim().slice(0, 60);
+    var aria = el.getAttribute && el.getAttribute('aria-label');
+    if (aria) return aria.trim().slice(0, 60);
+    var title = el.title && el.title.trim();
+    if (title) return title.slice(0, 60);
+    return ((el.textContent || '').replace(/\s+/g, ' ').trim()).slice(0, 60);
+  }
+
   document.addEventListener('click', function (e) {
-    var link = e.target.closest('a[href]');
-    if (!link) return;
-    var href = link.href || '';
-    var text = (link.innerText || link.title || link.getAttribute('aria-label') || '').trim().slice(0, 60);
-    var isExternal = href.indexOf(location.origin) !== 0 && /^https?:\/\//.test(href);
-    var isKeyAction = /resume|github|linkedin|mailto:|email|cv/i.test(href + ' ' + text);
-    if (isExternal || isKeyAction) {
-      var section = link.closest('section');
-      sendEvent('link_click', {
-        href: href.slice(0, 200),
-        link_text: text,
+    // Project cards (wrapping <a> around a whole card) — highest signal
+    var card = e.target.closest('.project-card');
+    if (card) {
+      var section = card.closest('section');
+      sendEvent('project_click', {
+        project_name: labelFor(card),
+        href: (card.href || '').slice(0, 200),
         section_id: section ? (section.id || '') : ''
+      });
+      return;
+    }
+
+    // Hero "Ask about Kevin" chips — tells you what topics recruiters are curious about
+    var chip = e.target.closest('.hero-ask-chip');
+    if (chip) {
+      sendEvent('ask_chip_click', {
+        question: chip.dataset.q || labelFor(chip),
+        chip_label: (chip.textContent || '').trim().slice(0, 40)
+      });
+      return;
+    }
+
+    // Nav links (jumping to a section via anchor)
+    var nav = e.target.closest('.nav-links a[href^="#"]');
+    if (nav) {
+      sendEvent('nav_click', {
+        target_section: (nav.getAttribute('href') || '').slice(1),
+        link_text: labelFor(nav)
+      });
+      return;
+    }
+
+    // Any other anchor link — track external + key actions
+    var link = e.target.closest('a[href]');
+    if (link) {
+      var href = link.href || '';
+      var text = labelFor(link);
+      var isExternal = href.indexOf(location.origin) !== 0 && /^https?:\/\//.test(href);
+      var isKeyAction = /resume|github|linkedin|mailto:|cv/i.test(href + ' ' + text);
+      if (isExternal || isKeyAction) {
+        var linkSection = link.closest('section');
+        sendEvent('link_click', {
+          href: href.slice(0, 200),
+          link_text: text,
+          section_id: linkSection ? (linkSection.id || '') : ''
+        });
+      }
+      return;
+    }
+
+    // Standalone buttons (not hero chips, not kermit)
+    var btn = e.target.closest('button');
+    if (btn && btn.id !== 'kermitFab' && btn.id !== 'kermitSend' && !btn.classList.contains('kermit-quick-btn')) {
+      sendEvent('button_click', {
+        button_id: btn.id || '',
+        button_label: labelFor(btn),
+        section_id: (btn.closest('section') || {}).id || ''
       });
     }
   });
 
-  // ── Copy tracking (email/phone copy = strong recruiter intent signal) ──
+  // ── Per-project-card dwell (so you know which projects got eyeballs, not just which were clicked) ──
+  if (typeof IntersectionObserver !== 'undefined') {
+    var cardInView = {};
+    var cardEntered = {};
+    var cardObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var card = entry.target;
+        var name = labelFor(card);
+        if (!name) return;
+        if (entry.isIntersecting) {
+          if (!cardInView[name]) {
+            cardInView[name] = true;
+            cardEntered[name] = activeMs();
+          }
+        } else if (cardInView[name]) {
+          var elapsed = activeMs() - cardEntered[name];
+          if (elapsed >= 1500) {
+            sendEvent('project_view', { project_name: name, dwell_ms: elapsed });
+          }
+          delete cardInView[name];
+          delete cardEntered[name];
+        }
+      });
+    }, { rootMargin: '-20% 0px -20% 0px', threshold: 0 });
+    document.querySelectorAll('.project-card').forEach(function (el) {
+      cardObserver.observe(el);
+    });
+  }
+
+  // ── Copy tracking ──
   document.addEventListener('copy', function () {
     var sel = window.getSelection ? window.getSelection().toString().slice(0, 100) : '';
     sendEvent('text_copy', { selection: sel });
   });
 
-  // ── Chat interaction tracking ──
+  // ── Chat tracking ──
   var fabEl = document.getElementById('kermitFab');
   var messagesEl = document.getElementById('kermitMessages');
   if (fabEl) {
@@ -2966,10 +3098,9 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
       if (!chatOpened) {
         chatOpened = true;
         sendEvent('chat_open', {
-          time_on_page_s: Math.round((Date.now() - startTime) / 1000),
+          time_on_page_s: activeSec(),
           scroll_pct: maxScroll
         });
-        // Observe user messages sent inside chat
         if (messagesEl && typeof MutationObserver !== 'undefined') {
           new MutationObserver(function (mutations) {
             mutations.forEach(function (m) {
@@ -2978,7 +3109,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
                   chatMessageCount++;
                   sendEvent('chat_message', {
                     message_number: chatMessageCount,
-                    time_on_page_s: Math.round((Date.now() - startTime) / 1000)
+                    time_on_page_s: activeSec()
                   });
                 }
               });
@@ -2989,32 +3120,58 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
     });
   }
 
-  // ── Heartbeat every 30s (captures partial sessions on hard closes) ──
+  // ── Heartbeat every 30s (only while visible) ──
   setInterval(function () {
+    if (document.visibilityState !== 'visible') return;
     sendEvent('heartbeat', {
-      time_on_page_s: Math.round((Date.now() - startTime) / 1000),
+      time_on_page_s: activeSec(),
       scroll_pct: maxScroll,
       milestones: Array.from(milestones),
-      sections_active: Object.keys(sectionTimers),
+      sections_active: Object.keys(sectionInView),
       chat_opened: chatOpened,
       chat_messages: chatMessageCount
     });
   }, 30000);
 
-  // ── Final session summary on page hide ──
-  function sendSummary() {
-    if (summarySent) return;
-    summarySent = true;
-    // Flush any sections still in viewport
-    Object.keys(sectionTimers).forEach(function (id) {
-      var elapsed = Date.now() - sectionTimers[id];
-      sectionDwells[id] = (sectionDwells[id] || 0) + elapsed;
-      delete sectionTimers[id];
+  // ── Visibility transitions: pause/resume the active-time timer ──
+  // and send an interim summary each time the tab hides (re-sendable).
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+      // Commit current sections so their dwell counts before we pause.
+      Object.keys(sectionInView).slice().forEach(function (id) {
+        commitSection(id, /*emit*/ false);
+      });
+      // Pause timer
+      if (activeStart) {
+        activeAccum += Date.now() - activeStart;
+        activeStart = null;
+      }
+      sendSummary('visibility_hidden');
+    } else if (document.visibilityState === 'visible') {
+      // Resume timer
+      activeStart = Date.now();
+    }
+  });
+
+  // ── Final/interim summary ──
+  // Re-sendable: every visibility-hidden cycle sends a snapshot.
+  // The backend dedupes by (session_id, reason) if needed.
+  function sendSummary(reason) {
+    // Make sure active sections are committed into sectionDwells (without emitting)
+    Object.keys(sectionInView).slice().forEach(function (id) {
+      // don't delete entry — just snapshot into sectionDwells for the summary
+      var elapsed = activeMs() - sectionEntered[id];
+      if (elapsed > 0) {
+        sectionDwells[id] = (sectionDwells[id] || 0) + elapsed;
+        sectionEntered[id] = activeMs();  // reset so we don't double-count on next flush
+      }
     });
+
     var payload = JSON.stringify({
       page: location.pathname,
       session_id: SESSION_ID,
-      duration_s: Math.round((Date.now() - startTime) / 1000),
+      reason: reason || 'pagehide',
+      duration_s: activeSec(),
       max_scroll_pct: maxScroll,
       milestones: Array.from(milestones),
       referrer: document.referrer,
@@ -3023,16 +3180,16 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => na
       chat_opened: chatOpened,
       chat_messages: chatMessageCount
     });
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon('/api/analytics', new Blob([payload], { type: 'application/json' }));
-    } else {
-      fetch('/api/analytics', { method: 'POST', body: payload, keepalive: true }).catch(function(){});
-    }
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/analytics', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/api/analytics', { method: 'POST', body: payload, keepalive: true }).catch(function(){});
+      }
+    } catch (_) {}
   }
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden') sendSummary();
-  });
-  window.addEventListener('pagehide', sendSummary);
+
+  window.addEventListener('pagehide', function () { sendSummary('pagehide'); });
 })();
 </script>
 </body>

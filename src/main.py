@@ -497,6 +497,48 @@ async def track_analytics_event(request: Request):
             chat_messages=body.get("chat_messages", 0),
         )
 
+    elif event_type == "project_click":
+        _log_event(
+            "analytics_project_click",
+            **base,
+            project_name=_truncate(body.get("project_name", ""), 60),
+            href=_truncate(body.get("href", ""), 200),
+            section_id=body.get("section_id", ""),
+        )
+
+    elif event_type == "project_view":
+        _log_event(
+            "analytics_project_view",
+            **base,
+            project_name=_truncate(body.get("project_name", ""), 60),
+            dwell_ms=body.get("dwell_ms", 0),
+        )
+
+    elif event_type == "ask_chip_click":
+        _log_event(
+            "analytics_ask_chip_click",
+            **base,
+            question=_truncate(body.get("question", ""), 120),
+            chip_label=_truncate(body.get("chip_label", ""), 40),
+        )
+
+    elif event_type == "nav_click":
+        _log_event(
+            "analytics_nav_click",
+            **base,
+            target_section=body.get("target_section", ""),
+            link_text=_truncate(body.get("link_text", ""), 60),
+        )
+
+    elif event_type == "button_click":
+        _log_event(
+            "analytics_button_click",
+            **base,
+            button_id=body.get("button_id", ""),
+            button_label=_truncate(body.get("button_label", ""), 60),
+            section_id=body.get("section_id", ""),
+        )
+
     else:
         _log_event(f"analytics_{event_type}", **base, raw=body)
 

@@ -60,17 +60,26 @@ scrape_configs:
             sections_active:  sections_active
             user_agent:       user_agent
             milestones_raw:   milestones
+            # New granular click/view fields
+            project_name:     project_name
+            question:         question
+            chip_label:       chip_label
+            target_section:   target_section
+            button_id:        button_id
+            button_label:     button_label
       # Low-cardinality fields only as Loki labels (high-cardinality goes in log line)
       - labels:
           event:
           path:
           method:
-          status_code:      # ← ADD: enables sum by(status_code) queries
-          page:             # ← ADD: filter by page path
+          status_code:
+          page:
           stream_error:
           fallback_reason:
           event_type:
           section_id:
+          project_name:     # enables filtering/grouping by project name
+          target_section:   # nav_click → which section was jumped to
       # Numeric fields as structured metadata for aggregation in Grafana
       - structured_metadata:
           dwell_ms:
