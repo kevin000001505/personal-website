@@ -2126,14 +2126,14 @@
         <div class="exp-header">
           <div>
             <div class="exp-role">Data Engineer Intern</div>
-            <div class="exp-company">Big Data — E-commerce Analytics</div>
+            <div class="exp-company">BIG DATA Co., Ltd.</div>
           </div>
           <div class="exp-date">May 2024 — Jul 2024</div>
         </div>
         <ul class="exp-bullets">
           <li>
             Architected automated ETL pipeline using Scrapy + Elasticsearch to
-            extract data from 300+ e-commerce sources with cookie-bypass logic,
+            extract data from 300+ websites with cookie-bypass logic,
             maintaining 99% data ingestion uptime
           </li>
           <li>
@@ -2163,7 +2163,7 @@
           </div>
           <div class="capstone-meta">
             <span class="capstone-badge">GMU DAEN Capstone</span>
-            <span class="capstone-date">Aug 2025 — May 2026</span>
+            <span class="capstone-date">Feb 2026 — May 2026</span>
           </div>
         </div>
         <div class="capstone-sub">
@@ -2173,12 +2173,9 @@
         <p class="capstone-desc">
           A production-grade platform that ingests space weather telemetry from
           NOAA (X-ray flux, proton flux, Kp index, D-RAP, geoelectric fields)
-          and real-time flight state vectors from OpenSky to assess aviation
-          risk in real time. Built the full stack myself — ingestion, storage,
-          query API, caching, real-time delivery, CI/CD — with an emphasis on
-          the kind of engineering decisions that hold up in production: schema
-          migrations without downtime, query plans that actually hit indexes,
-          and pipelines that recover from their own failures.
+          and real-time flight state data from OpenSky to assess aviation
+          risk in real time. I am the main developer of backend — ingestion, storage,
+          query API, caching, real-time delivery, CI/CD.
         </p>
         <div class="capstone-actions">
           <a
@@ -2208,8 +2205,7 @@
         <div class="metric-tile orange reveal">
           <div class="metric-value">70%</div>
           <div class="metric-label">
-            Storage reduction via TimescaleDB hypertable compression — zero data
-            loss
+            Storage reduction via TimescaleDB hypertable compression
           </div>
         </div>
         <div class="metric-tile purple reveal">
@@ -2262,7 +2258,7 @@
           <ul class="pillar-points">
             <li>
               Built <strong>20+ concurrent Prefect flows</strong> ingesting NOAA
-              SWPC feeds and OpenSky state vectors with automated retry,
+              API feeds and OpenSky flight data with automated retry,
               failover, and proactive policies for stuck runs.
             </li>
             <li>
@@ -2292,7 +2288,7 @@
               SQL compatibility.
             </li>
             <li>
-              Tuned <code>shared_buffers</code>, <code>work_mem</code>, WAL
+              Tuned <strong>shared_buffers</strong>, <strong>work_mem</strong>, WAL
               &amp; checkpoint behavior + rebuilt index strategy (<strong
                 >chunk-aware, partial, functional</strong
               >) for <strong>40% query gains</strong>.
