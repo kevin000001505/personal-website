@@ -2100,46 +2100,46 @@
       <div class="exp-item reveal">
         <div class="exp-header">
           <div>
-            <div class="exp-role">AI & Data Science Consultant</div>
-            <div class="exp-company">Startup Clients — AI & Automation</div>
+            <div class="exp-role">Data Scientist</div>
+            <div class="exp-company">Freelance · Taiwan</div>
           </div>
           <div class="exp-date">Jul 2025 — Dec 2025</div>
         </div>
         <ul class="exp-bullets">
           <li>
-            Saved $4,000/year by developing custom OCR model (CRNN) achieving
-            96% accuracy on high-complexity CAPTCHAs, eliminating third-party
-            API dependency
+            Developed a 96% accuracy custom OCR system that replaced a paid
+            third-party API, saving the client $4,000/year
           </li>
           <li>
-            Reduced customer support workload by 75% by deploying RAG-based
-            chatbot with semantic search — 4 hours daily down to 1
-          </li>
-          <li>
-            Decreased LLM API costs by 10% and improved latency via Redis
-            caching for query deduplication and Qdrant vector DB for high-speed
-            retrieval
+            Cut manual customer-support workload by 75% by deploying a
+            RAG-based chatbot using Qdrant vector search and Redis caching for
+            query deduplication, which also reduced LLM API spend by 10%
           </li>
         </ul>
       </div>
       <div class="exp-item reveal">
         <div class="exp-header">
           <div>
-            <div class="exp-role">Data Engineer Intern</div>
-            <div class="exp-company">BIG DATA Co., Ltd.</div>
+            <div class="exp-role">Data Engineer</div>
+            <div class="exp-company">Big Data Co., Ltd. · Taiwan</div>
           </div>
-          <div class="exp-date">May 2024 — Jul 2024</div>
+          <div class="exp-date">Feb 2024 — Aug 2024</div>
         </div>
         <ul class="exp-bullets">
           <li>
-            Architected automated ETL pipeline using Scrapy + Elasticsearch to
-            extract data from 300+ websites with cookie-bypass logic,
-            maintaining 99% data ingestion uptime
+            Built automated ETL pipelines across 300+ websites using Scrapy,
+            ingesting data into Elasticsearch and sustaining 99% ingestion
+            uptime for uninterrupted downstream analytics
           </li>
           <li>
-            Increased model training efficiency by 30% via data cleaning
-            pipeline using Pandas, Regex, and BeautifulSoup, achieving 99% data
-            purity
+            Maintained data integrity in Elasticsearch by auditing stored
+            records for duplicates and invalid entries, ensuring downstream
+            model training consumed clean, reliable data
+          </li>
+          <li>
+            Developed data-cleaning pipelines with Pandas, Regex, and
+            BeautifulSoup reaching 99% data purity, increasing downstream model
+            training efficiency by 30%
           </li>
         </ul>
       </div>
@@ -2524,6 +2524,7 @@
           <div class="skill-tags">
             <span class="skill-tag">AWS</span
             ><span class="skill-tag">Docker</span
+            ><span class="skill-tag">Kubernetes</span
             ><span class="skill-tag">Linux</span
             ><span class="skill-tag">Terraform</span
             ><span class="skill-tag">GitHub Actions</span
@@ -2629,6 +2630,21 @@
             ><span class="arch-tag">SSL</span>
           </div>
         </div>
+        <div class="arch-card reveal">
+          <div class="arch-icon">☸️</div>
+          <div class="arch-name">Kubernetes Cluster</div>
+          <div class="arch-desc">
+            K3s lightweight cluster running on Proxmox VMs for container
+            orchestration. Manages workloads that outgrow single-host Docker
+            Compose with rolling deployments and self-healing.
+          </div>
+          <div class="arch-tags">
+            <span class="arch-tag">K3s</span
+            ><span class="arch-tag">kubectl</span
+            ><span class="arch-tag">Helm</span
+            ><span class="arch-tag">Ingress</span>
+          </div>
+        </div>
       </div>
 
       <p class="homelab-subsection-label reveal">Running Services</p>
@@ -2701,6 +2717,13 @@
           <div class="svc-info">
             <div class="svc-name">Proxmox Backup</div>
             <div class="svc-role">Disaster Recovery</div>
+          </div>
+        </div>
+        <div class="service-chip reveal">
+          <div class="svc-dot blue"></div>
+          <div class="svc-info">
+            <div class="svc-name">K3s (Kubernetes)</div>
+            <div class="svc-role">Container Orchestration</div>
           </div>
         </div>
       </div>
