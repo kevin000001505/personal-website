@@ -2111,9 +2111,9 @@
             third-party API, saving the client $4,000/year
           </li>
           <li>
-            Cut manual customer-support workload by 75% by deploying a
-            RAG-based chatbot using Qdrant vector search and Redis caching for
-            query deduplication, which also reduced LLM API spend by 10%
+            Cut manual customer-support workload by 75% by deploying a RAG-based
+            chatbot using Qdrant vector search and Redis caching for query
+            deduplication, which also reduced LLM API spend by 10%
           </li>
         </ul>
       </div>
@@ -2173,8 +2173,8 @@
         <p class="capstone-desc">
           A production-grade platform that ingests space weather telemetry from
           NOAA (X-ray flux, proton flux, Kp index, D-RAP, geoelectric fields)
-          and real-time flight state data from OpenSky to assess aviation
-          risk in real time. I am the main developer of backend — ingestion, storage,
+          and real-time flight state data from OpenSky to assess aviation risk
+          in real time. I am the main developer of backend — ingestion, storage,
           query API, caching, real-time delivery, CI/CD.
         </p>
         <div class="capstone-actions">
@@ -2197,7 +2197,7 @@
       <!-- Metric tiles -->
       <div class="capstone-metrics">
         <div class="metric-tile reveal">
-          <div class="metric-value">150 GB/mo</div>
+          <div class="metric-value">200 GB/mo</div>
           <div class="metric-label">
             Telemetry throughput across NOAA &amp; OpenSky feeds
           </div>
@@ -2258,8 +2258,8 @@
           <ul class="pillar-points">
             <li>
               Built <strong>20+ concurrent Prefect flows</strong> ingesting NOAA
-              API feeds and OpenSky flight data with automated retry,
-              failover, and proactive policies for stuck runs.
+              API feeds and OpenSky flight data with automated retry, failover,
+              and proactive policies for stuck runs.
             </li>
             <li>
               Replaced <code>executemany</code> with
@@ -2288,8 +2288,8 @@
               SQL compatibility.
             </li>
             <li>
-              Tuned <strong>shared_buffers</strong>, <strong>work_mem</strong>, WAL
-              &amp; checkpoint behavior + rebuilt index strategy (<strong
+              Tuned <strong>shared_buffers</strong>, <strong>work_mem</strong>,
+              WAL &amp; checkpoint behavior + rebuilt index strategy (<strong
                 >chunk-aware, partial, functional</strong
               >) for <strong>40% query gains</strong>.
             </li>
@@ -2364,21 +2364,16 @@
       <div class="capstone-stack-wrap reveal" style="margin-top: 1.75rem">
         <div class="capstone-stack-label">Tech Stack</div>
         <div class="capstone-stack">
+          <span class="tag">SQL</span>
           <span class="tag">PostgreSQL</span>
           <span class="tag">TimescaleDB</span>
-          <span class="tag">PostGIS</span>
-          <span class="tag blue">asyncpg</span>
           <span class="tag blue">FastAPI</span>
           <span class="tag blue">SSE</span>
           <span class="tag blue">Redis</span>
           <span class="tag purple">Prefect</span>
-          <span class="tag purple">Pydantic v2</span>
-          <span class="tag orange">Docker Compose</span>
-          <span class="tag">GitHub Actions</span>
-          <span class="tag">pytest</span>
-          <span class="tag orange">Self-hosted runner</span>
-          <span class="tag">NOAA SWPC</span>
-          <span class="tag">OpenSky</span>
+          <span class="tag orange">Docker</span>
+          <span class="tag">CI/CD</span>
+          <span class="tag">Pytest</span>
         </div>
       </div>
     </section>
@@ -2775,28 +2770,6 @@
             <span class="tag blue">FastAPI</span><span class="tag">pysubs2</span
             ><span class="tag orange">Docker</span
             ><span class="tag purple">Gemini API</span>
-          </div>
-        </div>
-        <div class="ongoing-card reveal">
-          <div class="ongoing-header">
-            <div class="ongoing-icon">📸</div>
-            <div class="ongoing-name">Immich — Smart Photos</div>
-            <div class="ongoing-badge">active</div>
-          </div>
-          <div class="ongoing-desc">
-            Self-hosted Google Photos alternative with ML-powered features.
-            Migrated the ML worker to a dedicated AI server with OpenVINO for
-            GPU-accelerated inference.
-          </div>
-          <ul class="ongoing-highlights">
-            <li>Face recognition & CLIP search via Intel Arc GPU</li>
-            <li>Dedicated ML worker on AI inference VM</li>
-            <li>NFS-mounted photo storage on TrueNAS RAIDZ2</li>
-          </ul>
-          <div class="project-tags">
-            <span class="tag blue">Immich</span
-            ><span class="tag purple">OpenVINO</span
-            ><span class="tag">CLIP</span><span class="tag orange">NFS</span>
           </div>
         </div>
         <div class="ongoing-card reveal">
