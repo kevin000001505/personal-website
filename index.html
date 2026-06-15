@@ -1977,12 +1977,12 @@
           <!-- <p class="hero-greeting">$ whoami</p> -->
           <h1 class="hero-name">Cheng-Hsun Hsu</h1>
           <p class="hero-subtitle">
-            I build <strong>data systems</strong> that scale.
+            I build <strong>data systems</strong> and <strong>cloud-native infrastructure</strong> that scale.
           </p>
           <p class="hero-bio">
-            Data engineer and ML practitioner with a passion for building
-            production-grade pipelines, real-time analytics platforms, and
-            self-hosted infrastructure. Currently finishing my M.S. in Data
+            Data engineer and DevOps practitioner with a passion for building
+            production-grade pipelines, Kubernetes-orchestrated services, and
+            self-hosted infrastructure on Proxmox. Currently finishing my M.S. in Data
             Analytics Engineering at George Mason University.
           </p>
           <div class="hero-links">
@@ -2629,9 +2629,7 @@
           <div class="arch-icon">☸️</div>
           <div class="arch-name">Kubernetes Cluster</div>
           <div class="arch-desc">
-            K3s lightweight cluster running on Proxmox VMs for container
-            orchestration. Manages workloads that outgrow single-host Docker
-            Compose with rolling deployments and self-healing.
+            Self-managed K3s cluster on Proxmox VMs with full Grafana / Prometheus / Loki observability. Handles namespace-scoped workloads, PersistentVolume provisioning, rolling deployments, and self-healing — mirroring on-prem production K8s operations.
           </div>
           <div class="arch-tags">
             <span class="arch-tag">K3s</span
@@ -2718,7 +2716,7 @@
           <div class="svc-dot blue"></div>
           <div class="svc-info">
             <div class="svc-name">K3s (Kubernetes)</div>
-            <div class="svc-role">Container Orchestration</div>
+            <div class="svc-role">On-Prem K8s Cluster</div>
           </div>
         </div>
       </div>
@@ -2814,6 +2812,31 @@
             <span class="tag orange">Grafana</span><span class="tag">Loki</span
             ><span class="tag">Promtail</span
             ><span class="tag blue">Nginx PM</span>
+          </div>
+        </div>
+        <div class="ongoing-card reveal">
+          <div class="ongoing-header">
+            <div class="ongoing-icon">☸️</div>
+            <div class="ongoing-name">K3s Kubernetes Cluster</div>
+            <div class="ongoing-badge">active</div>
+          </div>
+          <div class="ongoing-desc">
+            Self-managed K3s cluster on Proxmox VMs — designed to mirror on-prem
+            Kubernetes operations with full observability, namespace isolation,
+            and GitOps-style deployments.
+          </div>
+          <ul class="ongoing-highlights">
+            <li>Grafana / Prometheus / Loki stack for real-time metrics and log aggregation</li>
+            <li>Namespace scoping and PersistentVolume provisioning for workload isolation</li>
+            <li>Rolling updates and self-healing across distributed services</li>
+            <li>Helm-based configuration management for reproducible deployments</li>
+          </ul>
+          <div class="project-tags">
+            <span class="tag blue">K3s</span
+            ><span class="tag orange">Grafana</span
+            ><span class="tag">Prometheus</span
+            ><span class="tag">Loki</span
+            ><span class="tag purple">Helm</span>
           </div>
         </div>
       </div>
